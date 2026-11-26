@@ -23,6 +23,18 @@ async function writeLocalGroups(groups: StudentGroup[]): Promise<void> {
   }
 }
 
+async function mergeWithLocalSeed(
+  supabaseGroups: StudentGroup[]
+): Promise<StudentGroup[]> {
+  const localGroups = await readLocalGroups();
+  const seenIds = new Set(supabaseGroups.map((g) => g.id));
+  const seenCodes = new Set(supabaseGroups.map((g) => g.code.toUpperCase()));
+  const extraLocal = localGroups.filter(
+    (g) => !seenIds.has(g.id) && !seenCodes.has(g.code.toUpperCase())
+  );
+  return [...supabaseGroups, ...extraLocal];
+}
+
 export async function GET() {
   const supabase = getSupabaseClient();
   if (supabase) {
@@ -32,8 +44,8 @@ export async function GET() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
-        const groups: StudentGroup[] = data.map((row) => ({
+      if (!error && data) {
+        const mapped: StudentGroup[] = data.map((row) => ({
           id: String(row.id),
           name: String(row.name),
           subject: String(row.subject),
@@ -42,6 +54,7 @@ export async function GET() {
           members: Array.isArray(row.members) ? (row.members as string[]) : [],
           createdBy: String(row.created_by),
         }));
+        const groups = await mergeWithLocalSeed(mapped);
         return NextResponse.json({ groups, synced: "supabase" });
       }
     } catch {
@@ -102,7 +115,7 @@ export async function POST(request: Request) {
               .select("*")
               .order("created_at", { ascending: false });
 
-            const groups: StudentGroup[] = (allRows ?? []).map((row) => ({
+            const mapped: StudentGroup[] = (allRows ?? []).map((row) => ({
               id: String(row.id),
               name: String(row.name),
               subject: String(row.subject),
@@ -113,6 +126,8 @@ export async function POST(request: Request) {
                 : [],
               createdBy: String(row.created_by),
             }));
+
+            const groups = await mergeWithLocalSeed(mapped);
 
             return NextResponse.json({
               group: {
@@ -197,7 +212,7 @@ export async function POST(request: Request) {
           .select("*")
           .order("created_at", { ascending: false });
 
-        const groups: StudentGroup[] = (allRows ?? []).map((row) => ({
+        const mapped: StudentGroup[] = (allRows ?? []).map((row) => ({
           id: String(row.id),
           name: String(row.name),
           subject: String(row.subject),
@@ -208,6 +223,8 @@ export async function POST(request: Request) {
             : [],
           createdBy: String(row.created_by),
         }));
+
+        const groups = await mergeWithLocalSeed(mapped);
 
         return NextResponse.json({ group: newGroup, groups });
       } catch (e) {

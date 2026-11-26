@@ -1,6 +1,6 @@
 # ENSAE Hub
 
-Plateforme collaborative conçue pour les étudiants de l'ENSAE Dakar (AS1 à AS3, ISE1 à ISE3). Elle réunit dans un même espace les cours, les échanges de groupe, la recherche de binômes et des outils de révision assistés par IA.
+Plateforme collaborative conçue pour les étudiants de l'ENSAE de Dakar (AS1 à AS3, ISE1 à ISE3). Elle réunit dans un même espace les cours, les échanges de groupe, la recherche de binômes et des outils de révision assistés par IA.
 
 **Accéder à la plateforme :** [https://ensae-dakar-nexus.vercel.app/](https://ensae-dakar-nexus.vercel.app/)
 
