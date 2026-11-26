@@ -7,7 +7,9 @@ import {
   Copy,
   Info,
   ListTodo,
+  Maximize2,
   MessageSquareText,
+  Minimize2,
   Plus,
   Reply,
   Search,
@@ -119,8 +121,18 @@ export function DiscussionBoard({
     content: string;
   } | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const dragStartXRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsExpanded(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isExpanded]);
 
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -320,9 +332,26 @@ export function DiscussionBoard({
           </button>
         }
       />
-      <div className="flex h-[calc(100vh-15rem)] min-h-[500px] flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-sm lg:flex-row">
+      {isExpanded ? (
+        <div
+          className="fixed inset-0 z-40 bg-obsidian/75 backdrop-blur-xs"
+          onClick={() => setIsExpanded(false)}
+          aria-hidden="true"
+        />
+      ) : null}
+      <div
+        className={
+          isExpanded
+            ? "fixed inset-2 z-50 flex flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-2xl sm:inset-5"
+            : "flex h-[calc(100vh-15rem)] min-h-[500px] flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-sm lg:flex-row"
+        }
+      >
       {/* Left Pane: Groups & Channels List */}
-      <aside className="flex w-full shrink-0 flex-col border-b border-hairline bg-panel lg:w-80 lg:border-b-0 lg:border-r">
+      <aside
+        className={`${
+          isExpanded ? "hidden" : "flex"
+        } w-full shrink-0 flex-col border-b border-hairline bg-panel lg:w-80 lg:border-b-0 lg:border-r`}
+      >
         <div className="flex items-center justify-between px-4 py-4">
           <div>
             <h1 className="font-display text-lg font-bold text-ink">
@@ -537,6 +566,28 @@ export function DiscussionBoard({
                     <Check className="h-3.5 w-3.5 text-volt" />
                   ) : (
                     <Copy className="h-3.5 w-3.5 text-ink-muted" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded((v) => !v)}
+                  title={
+                    isExpanded
+                      ? "Réduire la discussion (Échap)"
+                      : "Agrandir la discussion"
+                  }
+                  aria-label={
+                    isExpanded
+                      ? "Réduire la discussion"
+                      : "Agrandir la discussion"
+                  }
+                  className="tactile-btn inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-hairline bg-obsidian text-ink-muted transition hover:border-telemetry/40 hover:text-telemetry"
+                >
+                  {isExpanded ? (
+                    <Minimize2 className="h-3.5 w-3.5 text-telemetry" />
+                  ) : (
+                    <Maximize2 className="h-3.5 w-3.5" />
                   )}
                 </button>
               </div>
