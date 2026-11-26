@@ -18,7 +18,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { signIn, signUp, isCloudMode } = useAuth();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [promo, setPromo] = useState<EnsaePromo>("ISE2");

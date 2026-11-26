@@ -54,8 +54,8 @@ export function PersonalDashboard({
       .catch(() => {});
   }, []);
 
-  const currentName = user?.name ?? "Moussa Diop";
-  const firstName = currentName.split(" ")[0] || "étudiant";
+  const currentName = user?.name || "Étudiant";
+  const currentPromo = user?.promo ?? "ISE2";
 
   // Profile completion ring (exact logic from ensae-hub)
   const filledFields = [
@@ -214,11 +214,11 @@ export function PersonalDashboard({
         <div className="flex flex-wrap items-center justify-between gap-6 px-7 py-8 sm:px-8">
           <div className="max-w-md text-white">
             <h1 className="font-display text-3xl font-extrabold tracking-tight text-white">
-              Bonjour {firstName}
+              Bonjour {currentName}
             </h1>
             <p className="mt-2 mb-5 text-sm leading-relaxed text-white/85">
-              Prêt à apprendre et collaborer aujourd&apos;hui ? Voici où tu en
-              es.
+              {currentPromo} — Prêt à apprendre et collaborer aujourd&apos;hui ?
+              Voici où tu en es.
             </p>
             <div className="flex flex-wrap gap-2.5">
               <Link

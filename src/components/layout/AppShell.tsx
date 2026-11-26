@@ -38,7 +38,7 @@ const NAV_LINKS = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pinned, setPinned] = useState(true);
   const [theme, setTheme] = useState<"dark" | "light">("light");
@@ -47,6 +47,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     const isDark = document.documentElement.classList.contains("dark");
     setTheme(isDark ? "dark" : "light");
   }, []);
+
+  useEffect(() => {
+    if (!loading && !user && pathname !== "/login") {
+      router.replace("/login");
+    }
+  }, [loading, user, pathname, router]);
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
@@ -85,6 +91,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </button>
         {children}
+      </div>
+    );
+  }
+
+  if (pathname !== "/login" && (loading || !user)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-obsidian text-sm text-ink-muted">
+        Redirection vers la création de compte...
       </div>
     );
   }

@@ -119,16 +119,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      // Fallback serveur local si Supabase n'est pas encore configuré
+      // Aucune session par défaut : l'utilisateur doit se connecter ou créer un compte
       try {
         const saved = localStorage.getItem(SESSION_STORAGE_KEY);
         if (saved && active) {
           setUser(JSON.parse(saved) as UserSession);
         } else if (active) {
-          setUser(DEFAULT_FALLBACK_USER);
+          setUser(null);
         }
       } catch {
-        if (active) setUser(DEFAULT_FALLBACK_USER);
+        if (active) setUser(null);
       } finally {
         if (active) setLoading(false);
       }
