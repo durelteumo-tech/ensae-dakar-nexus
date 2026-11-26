@@ -31,6 +31,7 @@ export function PersonalDashboard({
 }: PersonalDashboardProps) {
   const { user } = useAuth();
   const [groups, setGroups] = useState<StudentGroup[]>(initialGroups);
+  const [resourcesList, setResourcesList] = useState<ResourceItem[]>(resources);
   const [groupMode, setGroupMode] = useState<"create" | "join">("create");
 
   const [groupName, setGroupName] = useState("");
@@ -52,10 +53,20 @@ export function PersonalDashboard({
         }
       })
       .catch(() => {});
+
+    fetch("/api/resources", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.resources)) {
+          setResourcesList(data.resources);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const currentName = user?.name || "Étudiant";
   const currentPromo = user?.promo ?? "ISE2";
+  const normalizedUser = currentName.trim().toLowerCase();
 
   // Profile completion ring (exact logic from ensae-hub)
   const filledFields = [
@@ -66,35 +77,46 @@ export function PersonalDashboard({
   ].filter(Boolean).length;
   const profilePct = user ? Math.round((filledFields / 4) * 100) : 75;
 
-  const totalDownloads = resources.reduce(
+  const myResources = resourcesList.filter(
+    (r) => r.author.trim().toLowerCase() === normalizedUser
+  );
+  const myDownloads = myResources.reduce(
     (sum, r) => sum + (r.downloads || 0),
     0
   );
+  const myGroups = groups.filter((g) =>
+    g.members.some((m) => m.trim().toLowerCase() === normalizedUser)
+  );
+  const karmaScore =
+    filledFields * 10 +
+    myResources.length * 25 +
+    myDownloads * 2 +
+    myGroups.length * 15;
 
   const stats = [
     {
-      n: "120",
+      n: String(karmaScore),
       l: "Karma",
       pastel: "var(--pastel1)",
       tint: "rgb(var(--c-primary))",
       icon: Star,
     },
     {
-      n: String(resources.length),
+      n: String(myResources.length),
       l: "Ressources partagées",
       pastel: "var(--pastel2)",
       tint: "#5b82ff",
       icon: FolderKanban,
     },
     {
-      n: String(totalDownloads),
+      n: String(myDownloads),
       l: "Téléchargements reçus",
       pastel: "var(--pastel3)",
       tint: "rgb(var(--c-emerald))",
       icon: Download,
     },
     {
-      n: String(groups.length),
+      n: String(myGroups.length),
       l: "Projets & Groupes",
       pastel: "var(--pastel4)",
       tint: "rgb(var(--c-violet))",
