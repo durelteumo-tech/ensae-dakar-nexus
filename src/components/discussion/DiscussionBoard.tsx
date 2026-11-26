@@ -126,6 +126,22 @@ export function DiscussionBoard({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("ensae:set-rail-pinned", {
+        detail: { pinned: !isExpanded },
+      })
+    );
+  }, [isExpanded]);
+
+  useEffect(() => {
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("ensae:set-rail-pinned", { detail: { pinned: true } })
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isExpanded) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsExpanded(false);
@@ -316,33 +332,28 @@ export function DiscussionBoard({
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Projets & Salons de discussion"
-        subtitle="Messagerie de groupe temps réel et tableau Kanban des tâches."
-        icon={MessageSquareText}
-        image={IMG.projects}
-        action={
-          <button
-            type="button"
-            onClick={() => setShowNewGroup((v) => !v)}
-            className="minuto-btn inline-flex min-h-[38px] items-center gap-2 rounded-full px-5 py-2 text-xs font-bold"
-          >
-            <Plus className="h-4 w-4" />
-            Nouveau salon
-          </button>
-        }
-      />
-      {isExpanded ? (
-        <div
-          className="fixed inset-0 z-40 bg-obsidian/75 backdrop-blur-xs"
-          onClick={() => setIsExpanded(false)}
-          aria-hidden="true"
+      {!isExpanded ? (
+        <PageHeader
+          title="Projets & Salons de discussion"
+          subtitle="Messagerie de groupe temps réel et tableau Kanban des tâches."
+          icon={MessageSquareText}
+          image={IMG.projects}
+          action={
+            <button
+              type="button"
+              onClick={() => setShowNewGroup((v) => !v)}
+              className="minuto-btn inline-flex min-h-[38px] items-center gap-2 rounded-full px-5 py-2 text-xs font-bold"
+            >
+              <Plus className="h-4 w-4" />
+              Nouveau salon
+            </button>
+          }
         />
       ) : null}
       <div
         className={
           isExpanded
-            ? "fixed inset-2 z-50 flex flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-2xl sm:inset-5"
+            ? "flex h-[calc(100dvh-7.5rem)] min-h-[460px] flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-sm lg:h-[calc(100dvh-4.5rem)]"
             : "flex h-[calc(100vh-15rem)] min-h-[500px] flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-sm lg:flex-row"
         }
       >
@@ -510,7 +521,7 @@ export function DiscussionBoard({
       </aside>
 
       {/* Right Pane: Active Chat Room */}
-      <section className="flex min-w-0 flex-1 flex-col bg-obsidian">
+      <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-obsidian">
         {activeGroup ? (
           <>
             {/* Room Header */}

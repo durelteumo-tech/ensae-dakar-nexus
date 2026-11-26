@@ -49,6 +49,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const handleRailPin = (e: Event) => {
+      const custom = e as CustomEvent<{ pinned: boolean }>;
+      if (typeof custom.detail?.pinned === "boolean") {
+        setPinned(custom.detail.pinned);
+      }
+    };
+    window.addEventListener("ensae:set-rail-pinned", handleRailPin);
+    return () =>
+      window.removeEventListener("ensae:set-rail-pinned", handleRailPin);
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user && pathname !== "/login") {
       router.replace("/login");
     }
