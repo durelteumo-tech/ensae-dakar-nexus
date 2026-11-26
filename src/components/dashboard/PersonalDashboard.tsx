@@ -87,7 +87,7 @@ export function PersonalDashboard({
   const myGroups = groups.filter((g) =>
     g.members.some((m) => m.trim().toLowerCase() === normalizedUser)
   );
-  const karmaScore =
+  const activityPoints =
     filledFields * 10 +
     myResources.length * 25 +
     myDownloads * 2 +
@@ -95,8 +95,8 @@ export function PersonalDashboard({
 
   const stats = [
     {
-      n: String(karmaScore),
-      l: "Karma",
+      n: String(activityPoints),
+      l: "Points d'activité",
       pastel: "var(--pastel1)",
       tint: "rgb(var(--c-primary))",
       icon: Star,

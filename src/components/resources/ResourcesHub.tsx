@@ -403,7 +403,7 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
                     type="button"
                     onClick={() => {
                       setVotedIds((v) => ({ ...v, [item.id]: true }));
-                      setVoteNotice(`Merci — +1 karma attribué à ${item.author}.`);
+                      setVoteNotice(`Merci ! +1 point attribué à ${item.author}.`);
                       setTimeout(() => setVoteNotice(null), 2500);
                     }}
                     className={`tactile-btn inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
