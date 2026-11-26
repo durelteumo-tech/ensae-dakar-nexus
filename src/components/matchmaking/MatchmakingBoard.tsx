@@ -208,25 +208,27 @@ export function MatchmakingBoard({ initialStudents }: MatchmakingBoardProps) {
                     Contacter sur WhatsApp
                   </a>
 
-                  <button
-                    type="button"
-                    onClick={() => copyDiscord(student)}
-                    className="flex min-h-[34px] w-full items-center justify-center gap-2 rounded-lg border border-hairline bg-obsidian px-4 py-1.5 font-mono text-xs text-ink-muted transition hover:bg-panel-raised hover:text-ink"
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-volt" />
-                        <span className="text-volt">
-                          Copié : {student.discordHandle}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        <span>Discord : {student.discordHandle}</span>
-                      </>
-                    )}
-                  </button>
+                  {student.discordHandle?.trim() ? (
+                    <button
+                      type="button"
+                      onClick={() => copyDiscord(student)}
+                      className="flex min-h-[34px] w-full items-center justify-center gap-2 rounded-lg border border-hairline bg-obsidian px-4 py-1.5 font-mono text-xs text-ink-muted transition hover:bg-panel-raised hover:text-ink"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-volt" />
+                          <span className="text-volt">
+                            Copié : {student.discordHandle}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          <span>Discord : {student.discordHandle}</span>
+                        </>
+                      )}
+                    </button>
+                  ) : null}
                 </div>
               </article>
             );

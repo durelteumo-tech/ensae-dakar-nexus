@@ -72,6 +72,7 @@ export function DiscussionBoard({
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
 
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -184,6 +185,7 @@ export function DiscussionBoard({
     if (!draft.trim() || !activeGroup) return;
     const text = draft.trim();
     setDraft("");
+    setChatError(null);
     setIsSending(true);
 
     try {
@@ -199,7 +201,14 @@ export function DiscussionBoard({
         }),
       });
       const data = await res.json();
-      if (res.ok && data.message) {
+      if (!res.ok) {
+        setChatError(
+          data.error || "Impossible d'envoyer le message (vérifiez Supabase)."
+        );
+        setDraft(text);
+        return;
+      }
+      if (data.message) {
         setMessages((prev) => [...prev, data.message as ChatMessage]);
       }
     } finally {
@@ -626,6 +635,12 @@ export function DiscussionBoard({
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {chatError ? (
+              <div className="mx-4 mt-2 rounded-xl border border-signal-rose/40 bg-signal-rose/10 px-3.5 py-2 text-xs font-medium text-signal-rose">
+                {chatError}
+              </div>
+            ) : null}
 
             {/* Message Input Bar */}
             <form

@@ -82,6 +82,12 @@ export async function POST(request: Request) {
           resource: { ...newItem, id: String(data.id) },
         });
       }
+      if (error) {
+        return NextResponse.json(
+          { error: `Supabase: ${error.message}` },
+          { status: 500 }
+        );
+      }
     }
 
     const current = await readLocalResources();

@@ -129,7 +129,13 @@ export default function AccountPage() {
       </div>
 
       {statusMessage ? (
-        <div className="flex items-center gap-2 rounded-xl border border-volt/40 bg-volt/10 px-4 py-3 text-xs font-medium text-volt">
+        <div
+          className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-xs font-medium ${
+            statusMessage.startsWith("Erreur")
+              ? "border-signal-rose/40 bg-signal-rose/10 text-signal-rose"
+              : "border-volt/40 bg-volt/10 text-volt"
+          }`}
+        >
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span>{statusMessage}</span>
         </div>
@@ -242,13 +248,13 @@ export default function AccountPage() {
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-ink-muted">
-              Discord
+              Discord (optionnel)
             </label>
             <input
               type="text"
               value={discordHandle}
               onChange={(e) => setDiscordHandle(e.target.value)}
-              placeholder="pseudo#1234"
+              placeholder="pseudo#1234 (facultatif)"
               className="w-full rounded-lg border border-hairline bg-obsidian px-3 py-2 font-mono text-xs text-ink outline-none focus:border-telemetry"
             />
           </div>

@@ -114,8 +114,15 @@ export async function POST(request: Request) {
         if (!error) {
           return NextResponse.json({ message: newMessage, synced: "supabase" });
         }
-      } catch {
-        // Fall through to local server file
+        return NextResponse.json(
+          { error: `Supabase: ${error.message}` },
+          { status: 500 }
+        );
+      } catch (e) {
+        return NextResponse.json(
+          { error: `Erreur Supabase: ${String(e)}` },
+          { status: 500 }
+        );
       }
     }
 

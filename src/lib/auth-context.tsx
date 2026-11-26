@@ -388,30 +388,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (supabase && user.provider === "supabase") {
         const { error } = await supabase
           .from("profiles")
-          .update({
-            full_name: merged.name,
-            promo: merged.promo,
-            specialty: merged.specialty,
-            skills: merged.skills,
-            looking_for: merged.lookingFor,
-            project_idea: merged.projectIdea,
-            whatsapp_handle: merged.whatsappHandle,
-            discord_handle: merged.discordHandle,
-            availability: merged.availability,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
+          .upsert(
+            {
+              id: user.id,
+              email: user.email,
+              full_name: merged.name,
+              promo: merged.promo,
+              specialty: merged.specialty,
+              skills: merged.skills,
+              looking_for: merged.lookingFor,
+              project_idea: merged.projectIdea,
+              whatsapp_handle: merged.whatsappHandle,
+              discord_handle: merged.discordHandle,
+              availability: merged.availability,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          );
+
+        setUser(merged);
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(merged));
+        } catch {
+          // ignore
+        }
 
         if (error) {
-          if (error.message.toLowerCase().includes("rate limit")) {
-            return {
-              error:
-                "Limite d'envoi d'emails Supabase atteinte (2/heure sur le plan gratuit). Désactivez « Confirm email » dans Supabase → Authentication → Providers → Email pour activer l'inscription instantanée.",
-            };
-          }
-          return { error: error.message };
+          return {
+            error: `${error.message} — Exécutez le script supabase/fix_permissions_and_tables.sql dans Supabase SQL Editor.`,
+          };
         }
-        setUser(merged);
         return {};
       }
 

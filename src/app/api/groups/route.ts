@@ -185,28 +185,36 @@ export async function POST(request: Request) {
           created_by: newGroup.createdBy,
         });
 
-        if (!error) {
-          const { data: allRows } = await supabase
-            .from("study_groups")
-            .select("*")
-            .order("created_at", { ascending: false });
-
-          const groups: StudentGroup[] = (allRows ?? []).map((row) => ({
-            id: String(row.id),
-            name: String(row.name),
-            subject: String(row.subject),
-            promo: String(row.promo),
-            code: String(row.code),
-            members: Array.isArray(row.members)
-              ? (row.members as string[])
-              : [],
-            createdBy: String(row.created_by),
-          }));
-
-          return NextResponse.json({ group: newGroup, groups });
+        if (error) {
+          return NextResponse.json(
+            { error: `Supabase: ${error.message}` },
+            { status: 500 }
+          );
         }
-      } catch {
-        // Fall back to local
+
+        const { data: allRows } = await supabase
+          .from("study_groups")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        const groups: StudentGroup[] = (allRows ?? []).map((row) => ({
+          id: String(row.id),
+          name: String(row.name),
+          subject: String(row.subject),
+          promo: String(row.promo),
+          code: String(row.code),
+          members: Array.isArray(row.members)
+            ? (row.members as string[])
+            : [],
+          createdBy: String(row.created_by),
+        }));
+
+        return NextResponse.json({ group: newGroup, groups });
+      } catch (e) {
+        return NextResponse.json(
+          { error: `Erreur Supabase: ${String(e)}` },
+          { status: 500 }
+        );
       }
     }
 

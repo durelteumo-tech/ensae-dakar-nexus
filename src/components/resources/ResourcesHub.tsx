@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   Download,
   FileCode2,
@@ -46,6 +46,18 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [votedIds, setVotedIds] = useState<Record<string, boolean>>({});
   const [voteNotice, setVoteNotice] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/resources", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.resources) && data.resources.length > 0) {
+          setResources(data.resources);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredResources = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -87,6 +99,7 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
   async function handleUploadSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
+    setUploadError(null);
 
     try {
       const res = await fetch("/api/resources", {
@@ -103,14 +116,21 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
         }),
       });
       const data = await res.json();
-      if (res.ok && data.resource) {
-        setResources((prev) => [data.resource as ResourceItem, ...prev]);
+      if (!res.ok || !data.resource) {
+        setUploadError(
+          data.error ||
+            "Impossible de publier la ressource (vérifiez Supabase)."
+        );
+        return;
       }
-    } finally {
-      setIsSubmitting(false);
+      setResources((prev) => [data.resource as ResourceItem, ...prev]);
       setTitle("");
       setFileName(null);
       setIsUploadOpen(false);
+    } catch {
+      setUploadError("Erreur réseau lors de la publication.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -153,6 +173,12 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
               <X className="h-4 w-4" />
             </button>
           </div>
+
+          {uploadError ? (
+            <div className="mb-4 rounded-xl border border-signal-rose/40 bg-signal-rose/10 px-3.5 py-2.5 text-xs font-medium text-signal-rose">
+              {uploadError}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
