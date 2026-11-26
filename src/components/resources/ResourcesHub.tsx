@@ -44,6 +44,7 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
   const [subject, setSubject] = useState<ResourceCategory>("Économétrie");
   const [fileType, setFileType] = useState<ResourceFileType>("PDF");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [votedIds, setVotedIds] = useState<Record<string, boolean>>({});
   const [voteNotice, setVoteNotice] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -75,19 +76,39 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
 
   function handleDownload(item: ResourceItem) {
     const extMap: Record<ResourceFileType, string> = {
-      PDF: "txt",
+      PDF: "pdf",
       R: "R",
       Python: "py",
       Notebook: "ipynb",
     };
-    const content = `# ENSAE Dakar Nexus — Ressource Certifiée (${item.badge})\n# Titre: ${item.title}\n# Matière: ${item.subject}\n# Auteur: ${item.author} (${item.promo})\n`;
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${item.title.replace(/\s+/g, "_")}.${extMap[item.fileType]}`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const ext = extMap[item.fileType] || "pdf";
+    const safeTitle = item.title.replace(/\s+/g, "_");
+    const downloadName = safeTitle.toLowerCase().endsWith(`.${ext.toLowerCase()}`)
+      ? safeTitle
+      : `${safeTitle}.${ext}`;
+
+    if (
+      item.downloadUrl &&
+      item.downloadUrl !== "#" &&
+      (item.downloadUrl.startsWith("data:") ||
+        item.downloadUrl.startsWith("http"))
+    ) {
+      const link = document.createElement("a");
+      link.href = item.downloadUrl;
+      link.download = downloadName;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.click();
+    } else {
+      const content = `# ENSAE Dakar Nexus — Ressource Certifiée (${item.badge})\n# Titre: ${item.title}\n# Matière: ${item.subject}\n# Auteur: ${item.author} (${item.promo})\n`;
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${safeTitle}.${item.fileType === "PDF" ? "txt" : ext}`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
 
     setResources((prev) =>
       prev.map((r) =>
@@ -96,12 +117,36 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
     );
   }
 
+  function readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("Lecture du fichier impossible"));
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function handleUploadSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
     setUploadError(null);
 
     try {
+      let fileDataUrl: string | undefined;
+      let fileSizeLabel = "1.1 MB";
+
+      if (selectedFile) {
+        if (selectedFile.size > 4 * 1024 * 1024) {
+          setUploadError("Le fichier dépasse 4 Mo (limite Vercel).");
+          setIsSubmitting(false);
+          return;
+        }
+        fileDataUrl = await readFileAsDataUrl(selectedFile);
+        const kb = Math.max(1, Math.round(selectedFile.size / 1024));
+        fileSizeLabel =
+          kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
+      }
+
       const res = await fetch("/api/resources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,10 +154,12 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
           title: title.trim() || fileName || "Nouvelle_Ressource_ENSAE",
           subject,
           fileType,
-          fileSize: fileName ? "420 KB" : "1.1 MB",
+          fileSize: fileSizeLabel,
           author: user?.name ?? "Étudiant ENSAE",
           promo: user?.promo ?? "ISE2",
           badge: "100% Validé",
+          fileDataUrl,
+          originalFileName: selectedFile?.name,
         }),
       });
       const data = await res.json();
@@ -126,6 +173,7 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
       setResources((prev) => [data.resource as ResourceItem, ...prev]);
       setTitle("");
       setFileName(null);
+      setSelectedFile(null);
       setIsUploadOpen(false);
     } catch {
       setUploadError("Erreur réseau lors de la publication.");
@@ -249,8 +297,13 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) {
+                    setSelectedFile(f);
                     setFileName(f.name);
                     if (!title) setTitle(f.name);
+                    if (/\.pdf$/i.test(f.name)) setFileType("PDF");
+                    else if (/\.r$/i.test(f.name)) setFileType("R");
+                    else if (/\.py$/i.test(f.name)) setFileType("Python");
+                    else if (/\.ipynb$/i.test(f.name)) setFileType("Notebook");
                   }
                 }}
               />

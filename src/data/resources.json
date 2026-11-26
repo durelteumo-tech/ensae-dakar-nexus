@@ -1,5 +1,18 @@
 [
   {
+    "id": "res-1795731997784",
+    "title": "Compte_rendu_TE.pdf",
+    "subject": "Économétrie",
+    "fileType": "PDF",
+    "fileSize": "420 KB",
+    "author": "m.diop",
+    "promo": "ISE2",
+    "badge": "100% Validé",
+    "downloads": 0,
+    "uploadedAt": "2026-11-26",
+    "downloadUrl": "#"
+  },
+  {
     "id": "res-01",
     "title": "Estimation GMM & Données de Panel Dynamiques",
     "subject": "Économétrie",

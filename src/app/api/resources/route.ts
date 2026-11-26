@@ -43,7 +43,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as Partial<ResourceItem>;
+    const body = (await request.json()) as Partial<ResourceItem> & {
+      fileDataUrl?: string;
+      originalFileName?: string;
+    };
     const newItem: ResourceItem = {
       id: `res-${Date.now()}`,
       title: body.title?.trim() || "Ressource_ENSAE",
@@ -51,15 +54,43 @@ export async function POST(request: Request) {
       fileType: body.fileType ?? "PDF",
       fileSize: body.fileSize ?? "512 KB",
       author: body.author?.trim() || "Étudiant ENSAE",
-      promo: body.promo ?? "ISE 2",
+      promo: body.promo ?? "ISE2",
       badge: body.badge ?? "100% Validé",
       downloads: 0,
       uploadedAt: new Date().toISOString().slice(0, 10),
-      downloadUrl: "#",
+      downloadUrl: body.fileDataUrl || "#",
     };
 
     const supabase = getSupabaseClient();
     if (supabase) {
+      // Try uploading to Supabase Storage bucket "resources" if it exists
+      if (body.fileDataUrl && body.fileDataUrl.startsWith("data:")) {
+        try {
+          const [meta, b64] = body.fileDataUrl.split(",");
+          const mimeMatch = meta.match(/data:([^;]+);/);
+          const mime = mimeMatch?.[1] || "application/octet-stream";
+          const buffer = Buffer.from(b64, "base64");
+          const safeName = `${Date.now()}_${(
+            body.originalFileName || newItem.title
+          ).replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+
+          const { data: storageData, error: storageErr } = await supabase.storage
+            .from("resources")
+            .upload(safeName, buffer, { contentType: mime, upsert: true });
+
+          if (!storageErr && storageData?.path) {
+            const { data: pub } = supabase.storage
+              .from("resources")
+              .getPublicUrl(storageData.path);
+            if (pub?.publicUrl) {
+              newItem.downloadUrl = pub.publicUrl;
+            }
+          }
+        } catch {
+          // Keep data URL in file_url if Storage bucket isn't configured
+        }
+      }
+
       const { data, error } = await supabase
         .from("resources")
         .insert({
