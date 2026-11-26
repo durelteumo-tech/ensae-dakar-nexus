@@ -40,38 +40,55 @@
 }
 
 @layer base {
-  /* Apple HIG Semantic Color System — Light Appearance */
+  /* Palette MINUTO (ensae-hub) — Thème clair par défaut */
   :root {
     color-scheme: light;
-    --c-canvas: 242 242 247; /* systemGroupedBackground #F2F2F7 */
-    --c-panel: 255 255 255; /* secondarySystemGroupedBackground #FFFFFF */
-    --c-raised: 229 229 234; /* systemGray5 #E5E5EA */
-    --c-hairline: 209 209 214; /* separator #D1D1D6 */
-    --c-ink: 0 0 0; /* label #000000 */
-    --c-muted: 84 84 88; /* secondaryLabel accessible >7:1 #545458 */
-    --c-primary: 0 102 204; /* accessible systemBlue #0066CC */
+    --c-canvas: 246 247 251; /* #f6f7fb */
+    --c-panel: 255 255 255; /* #ffffff */
+    --c-raised: 245 246 250; /* #f5f6fa */
+    --c-hairline: 237 238 243; /* #edeef3 */
+    --c-ink: 32 36 46; /* #20242e */
+    --c-muted: 95 102 117; /* #5f6675 */
+    --c-primary: 255 107 74; /* #ff6b4a */
     --c-primary-ink: 255 255 255;
-    --c-emerald: 36 138 61; /* accessible systemGreen #248A3D */
-    --c-amber: 185 80 0; /* accessible systemOrange #B95000 */
-    --c-rose: 215 0 21; /* accessible systemRed/Pink #D70015 */
-    --c-violet: 137 68 171; /* accessible systemPurple #8944AB */
+    --c-emerald: 34 192 138; /* #22c08a */
+    --c-amber: 242 162 59; /* #f2a23b */
+    --c-rose: 239 90 90; /* #ef5a5a */
+    --c-violet: 154 106 255; /* #9a6aff */
+
+    --grad: linear-gradient(135deg, #ff7a5a, #ff9a6a);
+    --hero: linear-gradient(120deg, #ffe9e3 0%, #f3ecff 55%, #e7f0ff 100%);
+    --pastel1: #fff1ec;
+    --pastel2: #eef3ff;
+    --pastel3: #eafaf3;
+    --pastel4: #f6eeff;
+    --shadow: 0 10px 30px rgba(31, 41, 74, 0.06);
+    --shadow-sm: 0 4px 14px rgba(31, 41, 74, 0.05);
   }
 
-  /* Apple HIG Semantic Color System — Dark Appearance */
   .dark {
     color-scheme: dark;
-    --c-canvas: 0 0 0; /* systemBackground #000000 */
-    --c-panel: 28 28 30; /* secondarySystemBackground #1C1C1E */
-    --c-raised: 44 44 46; /* tertiarySystemBackground #2C2C2E */
-    --c-hairline: 56 56 58; /* separator #38383A */
-    --c-ink: 255 255 255; /* label #FFFFFF */
-    --c-muted: 174 174 178; /* secondaryLabel #AEAEB2 */
-    --c-primary: 10 132 255; /* systemBlue dark #0A84FF */
+    --c-canvas: 19 21 28; /* #13151c */
+    --c-panel: 27 30 40; /* #1b1e28 */
+    --c-raised: 35 39 51; /* #232733 */
+    --c-hairline: 42 46 59; /* #2a2e3b */
+    --c-ink: 237 240 246; /* #edf0f6 */
+    --c-muted: 166 173 189; /* #a6adbd */
+    --c-primary: 255 122 90; /* #ff7a5a */
     --c-primary-ink: 255 255 255;
-    --c-emerald: 48 209 88; /* systemGreen dark #30D158 */
-    --c-amber: 255 159 10; /* systemOrange dark #FF9F0A */
-    --c-rose: 255 55 95; /* systemPink dark #FF375F */
-    --c-violet: 191 90 242; /* systemPurple dark #BF5AF2 */
+    --c-emerald: 52 211 154; /* #34d39a */
+    --c-amber: 255 193 101; /* #ffc165 */
+    --c-rose: 255 112 112; /* #ff7070 */
+    --c-violet: 167 139 250;
+
+    --grad: linear-gradient(135deg, #ff7a5a, #ff9a6a);
+    --hero: linear-gradient(120deg, #2a2230 0%, #232536 55%, #1e2740 100%);
+    --pastel1: #2a2230;
+    --pastel2: #1f2435;
+    --pastel3: #1d2b2a;
+    --pastel4: #262036;
+    --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
   }
 
   html {
@@ -93,6 +110,81 @@
   }
 }
 
+/* ensae-hub signature components: hero, completion ring, expandable icon-rail */
+.hero-banner {
+  background: var(--hero);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.completion-ring {
+  --p: 75;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: conic-gradient(rgb(var(--c-primary)) calc(var(--p) * 1%), rgb(var(--c-hairline)) 0);
+}
+
+.completion-ring-inner {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: rgb(var(--c-panel));
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.minuto-btn {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 107, 74, 0.25);
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
+}
+
+.minuto-btn:hover {
+  opacity: 0.94;
+}
+
+.minuto-btn:active {
+  transform: scale(0.97);
+}
+
+/* Expandable Icon-Rail Sidebar (ensae-hub) */
+.rail {
+  width: 76px;
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s ease;
+  overflow: hidden;
+}
+
+@media (hover: hover) {
+  .rail:hover {
+    width: 244px;
+    box-shadow: var(--shadow);
+  }
+}
+
+.rail .lbl {
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.rail:hover .lbl,
+.rail-expanded .lbl {
+  opacity: 1;
+  transform: none;
+}
+
+.rail-expanded {
+  width: 244px;
+}
+
 @keyframes enter-up {
   from {
     opacity: 0;
@@ -104,37 +196,22 @@
   }
 }
 
-@keyframes enter-left {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @layer utilities {
   .animate-enter {
-    animation: enter-up 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .animate-enter-left {
-    animation: enter-left 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: enter-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .tactile-card {
+    box-shadow: var(--shadow-sm);
     transition:
       transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.2s ease,
-      box-shadow 0.22s ease,
-      background-color 0.2s ease;
+      box-shadow 0.22s ease;
   }
 
   .tactile-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow);
   }
 
   .tactile-btn {
@@ -158,22 +235,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--c-hairline));
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--c-muted));
 }

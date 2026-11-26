@@ -48,5 +48,15 @@
     "content": "Bonjour",
     "createdAt": "18:54",
     "timestamp": 1795715644015
+  },
+  {
+    "id": "msg-1795718166906-n82s",
+    "groupId": "grp-2",
+    "author": "m.diop",
+    "promo": "ISE2",
+    "specialty": "Statistique & Data Science",
+    "content": "Je suis partant",
+    "createdAt": "19:36",
+    "timestamp": 1795718166906
   }
 ]

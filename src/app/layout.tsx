@@ -17,14 +17,10 @@ const THEME_INIT_SCRIPT = `
 (function() {
   try {
     var saved = localStorage.getItem('ensae-nexus-theme');
-    if (saved === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else if (saved === 'dark') {
+    if (saved === 'dark') {
       document.documentElement.classList.add('dark');
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      document.documentElement.classList.remove('dark');
     } else {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('dark');
     }
   } catch (e) {}
 })();
@@ -36,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

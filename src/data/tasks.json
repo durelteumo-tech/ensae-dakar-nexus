@@ -1,0 +1,23 @@
+[
+  {
+    "id": "tsk-1",
+    "groupId": "grp-1",
+    "title": "Tester l'estimateur Arellano-Bond sur R (plm)",
+    "status": "doing",
+    "assignee": "Moussa Diop"
+  },
+  {
+    "id": "tsk-2",
+    "groupId": "grp-1",
+    "title": "Rédiger l'interprétation du test d'Hausman",
+    "status": "todo",
+    "assignee": "Aminata Ndiaye"
+  },
+  {
+    "id": "tsk-3",
+    "groupId": "grp-1",
+    "title": "Nettoyer les données de panel ANSD",
+    "status": "done",
+    "assignee": "Ibrahima Sow"
+  }
+]

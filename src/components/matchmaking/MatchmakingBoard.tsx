@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, MessageCircle, MessageSquare, Search } from "lucide-react";
+import { Check, MessageCircle, MessageSquare, Search, Users } from "lucide-react";
 import type { StudentProfile } from "@/types";
-import { NeonBadge } from "@/components/ui/NeonBadge";
+import { IMG } from "@/lib/images";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const SKILL_FILTERS = [
   "Tous",
@@ -65,32 +66,24 @@ export function MatchmakingBoard({ initialStudents }: MatchmakingBoardProps) {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col justify-between gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
-              Matchmaking Projets
-            </h1>
-            <NeonBadge label="Vérifié Club Info" />
-          </div>
-          <p className="mt-1.5 text-sm text-ink-muted">
-            Profils recommandés selon la complémentarité de vos compétences
-            (Data Science, Économétrie, Développement).
-          </p>
-        </div>
-
-        <label className="inline-flex min-h-[36px] cursor-pointer items-center gap-2 rounded-lg border border-hairline bg-panel px-3.5 py-2 text-xs font-medium text-ink">
-          <input
-            type="checkbox"
-            checked={onlyAvailable}
-            onChange={(e) => setOnlyAvailable(e.target.checked)}
-            className="h-4 w-4 accent-telemetry"
-          />
-          <span>Disponibles uniquement</span>
-        </label>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Réseau étudiant"
+        subtitle="Compétences, besoins et coéquipiers complémentaires inter-promos."
+        icon={Users}
+        image={IMG.network}
+        action={
+          <label className="inline-flex min-h-[36px] cursor-pointer items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
+            <input
+              type="checkbox"
+              checked={onlyAvailable}
+              onChange={(e) => setOnlyAvailable(e.target.checked)}
+              className="h-4 w-4 accent-telemetry"
+            />
+            <span>Disponibles uniquement</span>
+          </label>
+        }
+      />
 
       {/* Filters + Search */}
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">

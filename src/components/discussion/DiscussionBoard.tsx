@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   CheckCheck,
   Info,
+  ListTodo,
+  MessageSquareText,
   Plus,
   Search,
   Send,
@@ -13,6 +15,26 @@ import {
 import type { ChatMessage, StudentGroup } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { ENSAE_PROMOS, ENSAE_SUBJECTS } from "@/lib/constants";
+import { IMG } from "@/lib/images";
+import { PageHeader } from "@/components/ui/PageHeader";
+
+interface GroupTask {
+  id: string;
+  groupId: string;
+  title: string;
+  status: "todo" | "doing" | "done";
+  assignee?: string;
+}
+
+const KANBAN_COLS: Array<{
+  key: GroupTask["status"];
+  label: string;
+  dot: string;
+}> = [
+  { key: "todo", label: "À faire", dot: "bg-ink-muted" },
+  { key: "doing", label: "En cours", dot: "bg-signal-amber" },
+  { key: "done", label: "Terminé", dot: "bg-volt" },
+];
 
 interface DiscussionBoardProps {
   initialGroups: StudentGroup[];
@@ -38,6 +60,11 @@ export function DiscussionBoard({
 
   const [groups, setGroups] = useState<StudentGroup[]>(initialGroups);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [tasks, setTasks] = useState<GroupTask[]>([]);
+  const [roomView, setRoomView] = useState<"chat" | "kanban">("chat");
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskAssignee, setNewTaskAssignee] = useState("");
+  const [dragTaskId, setDragTaskId] = useState<string | null>(null);
   const [activeGroupId, setActiveGroupId] = useState<string>(
     initialGroups[0]?.id ?? "grp-1"
   );
@@ -60,24 +87,30 @@ export function DiscussionBoard({
     let active = true;
     async function poll() {
       try {
-        const [msgRes, grpRes] = await Promise.all([
+        const [msgRes, grpRes, tskRes] = await Promise.all([
           fetch("/api/discussions", { cache: "no-store" }),
           fetch("/api/groups", { cache: "no-store" }),
+          fetch("/api/tasks", { cache: "no-store" }),
         ]);
         if (!active) return;
         const msgData = await msgRes.json();
         const grpData = await grpRes.json();
+        const tskData = await tskRes.json();
         if (Array.isArray(msgData.messages)) {
           setMessages(msgData.messages);
         }
         if (Array.isArray(grpData.groups)) {
           setGroups(grpData.groups);
         }
+        if (Array.isArray(tskData.tasks)) {
+          setTasks(tskData.tasks);
+        }
       } catch {
         // Ignore transient poll errors
       }
     }
 
+    poll();
     const timer = setInterval(poll, 3000);
     return () => {
       active = false;
@@ -105,6 +138,42 @@ export function DiscussionBoard({
     () => messages.filter((m) => m.groupId === activeGroup?.id),
     [messages, activeGroup?.id]
   );
+
+  const roomTasks = useMemo(
+    () => tasks.filter((t) => t.groupId === activeGroup?.id),
+    [tasks, activeGroup?.id]
+  );
+
+  async function handleAddTask(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!newTaskTitle.trim() || !activeGroup) return;
+    const res = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "create",
+        groupId: activeGroup.id,
+        title: newTaskTitle.trim(),
+        assignee: newTaskAssignee || currentUserName,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && Array.isArray(data.tasks)) {
+      setTasks(data.tasks);
+      setNewTaskTitle("");
+    }
+  }
+
+  async function handleMoveTask(taskId: string, status: GroupTask["status"]) {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status } : t))
+    );
+    await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "move", taskId, status }),
+    });
+  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -162,7 +231,24 @@ export function DiscussionBoard({
   }
 
   return (
-    <div className="flex h-[calc(100vh-8.5rem)] min-h-[540px] flex-col overflow-hidden rounded-xl border border-hairline bg-panel lg:flex-row">
+    <div className="space-y-5">
+      <PageHeader
+        title="Projets & Salons de discussion"
+        subtitle="Messagerie de groupe temps réel et tableau Kanban des tâches."
+        icon={MessageSquareText}
+        image={IMG.projects}
+        action={
+          <button
+            type="button"
+            onClick={() => setShowNewGroup((v) => !v)}
+            className="minuto-btn inline-flex min-h-[38px] items-center gap-2 rounded-full px-5 py-2 text-xs font-bold"
+          >
+            <Plus className="h-4 w-4" />
+            Nouveau salon
+          </button>
+        }
+      />
+      <div className="flex h-[calc(100vh-15rem)] min-h-[500px] flex-col overflow-hidden rounded-[20px] border border-hairline bg-panel shadow-sm lg:flex-row">
       {/* Left Pane: Groups & Channels List */}
       <aside className="flex w-full shrink-0 flex-col border-b border-hairline bg-panel lg:w-80 lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between px-4 py-4">
@@ -344,6 +430,30 @@ export function DiscussionBoard({
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRoomView((v) => (v === "chat" ? "kanban" : "chat"))
+                  }
+                  className={`tactile-btn inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    roomView === "kanban"
+                      ? "border-telemetry bg-telemetry text-primary-ink"
+                      : "border-hairline bg-obsidian text-ink hover:bg-panel-raised"
+                  }`}
+                >
+                  {roomView === "kanban" ? (
+                    <>
+                      <MessageSquareText className="h-3.5 w-3.5" />
+                      <span>Discussion</span>
+                    </>
+                  ) : (
+                    <>
+                      <ListTodo className="h-3.5 w-3.5 text-telemetry" />
+                      <span>Tâches ({roomTasks.length})</span>
+                    </>
+                  )}
+                </button>
+
                 <span className="hidden items-center gap-1.5 rounded-full border border-hairline bg-obsidian px-3 py-1 text-xs font-medium text-ink-muted sm:inline-flex">
                   <Users className="h-3.5 w-3.5 text-telemetry" />
                   Code : <strong className="font-mono text-ink">{activeGroup.code}</strong>
@@ -358,6 +468,105 @@ export function DiscussionBoard({
               </div>
             </header>
 
+            {roomView === "kanban" ? (
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                <form
+                  onSubmit={handleAddTask}
+                  className="flex flex-wrap gap-2 rounded-xl border border-hairline bg-panel p-3"
+                >
+                  <input
+                    type="text"
+                    required
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    placeholder="Nouvelle tâche à faire..."
+                    className="min-w-[180px] flex-1 rounded-lg border border-hairline bg-obsidian px-3 py-1.5 text-xs text-ink outline-none focus:border-telemetry"
+                  />
+                  <select
+                    value={newTaskAssignee}
+                    onChange={(e) => setNewTaskAssignee(e.target.value)}
+                    className="rounded-lg border border-hairline bg-obsidian px-2.5 py-1.5 text-xs text-ink outline-none"
+                  >
+                    <option value="">Assigner à moi</option>
+                    {activeGroup.members.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="minuto-btn rounded-full px-4 py-1.5 text-xs font-bold"
+                  >
+                    + Ajouter
+                  </button>
+                </form>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {KANBAN_COLS.map((col) => {
+                    const colTasks = roomTasks.filter(
+                      (t) => t.status === col.key
+                    );
+                    return (
+                      <div
+                        key={col.key}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (dragTaskId) {
+                            handleMoveTask(dragTaskId, col.key);
+                            setDragTaskId(null);
+                          }
+                        }}
+                        className="min-h-[260px] rounded-xl border border-hairline bg-panel p-3.5"
+                      >
+                        <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-muted">
+                          <span
+                            className={`h-2.5 w-2.5 rounded-full ${col.dot}`}
+                          />
+                          <span>{col.label}</span>
+                          <span className="ml-auto font-mono">
+                            {colTasks.length}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          {colTasks.map((t) => (
+                            <div
+                              key={t.id}
+                              draggable
+                              onDragStart={() => setDragTaskId(t.id)}
+                              className="cursor-grab rounded-xl border border-hairline bg-obsidian p-3 text-xs transition hover:border-telemetry/60"
+                            >
+                              <div className="font-semibold text-ink">
+                                {t.title}
+                              </div>
+                              <div className="mt-2 flex items-center justify-between text-[11px] text-ink-muted">
+                                <span>{t.assignee || "Non assignée"}</span>
+                                {col.key !== "done" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleMoveTask(
+                                        t.id,
+                                        col.key === "todo" ? "doing" : "done"
+                                      )
+                                    }
+                                    className="font-semibold text-telemetry hover:underline"
+                                  >
+                                    Avancer
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <>
             {/* Messages Feed */}
             <div className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
               <div className="flex justify-center pb-2">
@@ -439,9 +648,12 @@ export function DiscussionBoard({
                 <span className="hidden sm:inline">Envoyer</span>
               </button>
             </form>
+              </>
+            )}
           </>
         ) : null}
       </section>
+      </div>
     </div>
   );
 }

@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import type { QcmQuestion } from "@/types";
 import { ENSAE_SUBJECTS } from "@/lib/constants";
-import { NeonBadge } from "@/components/ui/NeonBadge";
+import { IMG } from "@/lib/images";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const PRESET_DOCS = [
   "Econometrie_Panel_Dynamique_ISE3.pdf",
@@ -33,6 +34,15 @@ export function QcmGenerator() {
   const [subject, setSubject] = useState<string>("Auto");
   const [difficulty, setDifficulty] = useState<string>("Mixte");
   const [count, setCount] = useState<number>(5);
+
+  const [activeTool, setActiveTool] = useState<"qcm" | "reader" | "plan">("qcm");
+  const [readerQuestion, setReaderQuestion] = useState("");
+  const [readerAnswer, setReaderAnswer] = useState("");
+  const [readerLoading, setReaderLoading] = useState(false);
+
+  const [projectBrief, setProjectBrief] = useState("");
+  const [projectPlan, setProjectPlan] = useState("");
+  const [planLoading, setPlanLoading] = useState(false);
 
   const [questions, setQuestions] = useState<QcmQuestion[]>([]);
   const [sourceMode, setSourceMode] = useState<
@@ -149,30 +159,93 @@ export function QcmGenerator() {
     0
   );
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col justify-between gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
-              Générateur de QCM
-            </h1>
-            <NeonBadge label="IA Ready" />
-          </div>
-          <p className="mt-1.5 text-sm text-ink-muted">
-            Chaque génération produit un tirage inédit adapté au document, à la
-            matière et au niveau choisi.
-          </p>
-        </div>
+  async function handleSmartReader() {
+    setReaderLoading(true);
+    setReaderAnswer("");
+    try {
+      const res = await fetch("/api/ai-tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "reader",
+          context: documentText || documentName,
+          question: readerQuestion,
+          apiKey: apiKey.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      setReaderAnswer(data.text || data.error || "Aucune réponse.");
+    } finally {
+      setReaderLoading(false);
+    }
+  }
 
-        {sourceMode ? (
-          <span className="rounded-lg border border-hairline bg-panel px-3 py-1.5 font-mono text-[11px] font-medium text-telemetry">
-            Moteur :{" "}
-            {sourceMode === "gemini-ai" ? "Gemini Live AI" : "Dynamique ENSAE"}
-          </span>
-        ) : null}
-      </div>
+  async function handleProjectPlan() {
+    setPlanLoading(true);
+    setProjectPlan("");
+    try {
+      const res = await fetch("/api/ai-tools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "plan",
+          brief: projectBrief || documentText || documentName,
+          members: ["Moussa Diop", "Aminata Ndiaye", "Cheikh Fall"],
+          apiKey: apiKey.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      setProjectPlan(data.text || data.error || "Aucun plan généré.");
+    } finally {
+      setPlanLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Studio IA"
+        subtitle="Smart Reader, QCM dynamique et assistant chef de projet propulsés par Gemini."
+        icon={BrainCircuit}
+        image={IMG.ai}
+        action={
+          <div className="grid grid-cols-3 rounded-full bg-white/15 p-1 backdrop-blur-sm">
+            <button
+              type="button"
+              onClick={() => setActiveTool("qcm")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                activeTool === "qcm"
+                  ? "bg-panel text-ink shadow-sm"
+                  : "text-white/85 hover:text-white"
+              }`}
+            >
+              QCM
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTool("reader")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                activeTool === "reader"
+                  ? "bg-panel text-ink shadow-sm"
+                  : "text-white/85 hover:text-white"
+              }`}
+            >
+              Smart Reader
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTool("plan")}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                activeTool === "plan"
+                  ? "bg-panel text-ink shadow-sm"
+                  : "text-white/85 hover:text-white"
+              }`}
+            >
+              Chef de Projet
+            </button>
+          </div>
+        }
+      />
 
       {/* Split Workspace */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -363,15 +436,82 @@ export function QcmGenerator() {
           </div>
         </aside>
 
-        {/* Right Exam Sheet */}
+        {/* Right Exam Sheet / Smart Reader / Chef de Projet */}
         <section className="lg:col-span-8">
           {error ? (
-            <div className="rounded-xl border border-signal-rose/40 bg-signal-rose/10 p-4 text-xs font-medium text-signal-rose">
+            <div className="mb-4 rounded-xl border border-signal-rose/40 bg-signal-rose/10 p-4 text-xs font-medium text-signal-rose">
               {error}
             </div>
           ) : null}
 
-          {questions.length === 0 && !isGenerating ? (
+          {activeTool === "reader" ? (
+            <div className="space-y-4 rounded-[20px] border border-hairline bg-panel p-6">
+              <h2 className="font-display text-lg font-bold text-ink">
+                Smart Reader (RAG sur votre document)
+              </h2>
+              <p className="text-xs text-ink-muted">
+                Document chargé :{" "}
+                <strong className="text-ink">{documentName}</strong> (
+                {documentText ? `${documentText.length} caractères` : "aucun texte extrait"}).
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={readerQuestion}
+                  onChange={(e) => setReaderQuestion(e.target.value)}
+                  placeholder="Ex: Résume les hypothèses du modèle ou explique ce script..."
+                  className="flex-1 rounded-xl border border-hairline bg-obsidian px-3.5 py-2.5 text-sm text-ink outline-none focus:border-telemetry"
+                />
+                <button
+                  type="button"
+                  disabled={readerLoading}
+                  onClick={handleSmartReader}
+                  className="minuto-btn rounded-full px-5 py-2.5 text-xs font-bold disabled:opacity-50"
+                >
+                  {readerLoading ? "Analyse..." : "Interroger"}
+                </button>
+              </div>
+              {readerAnswer ? (
+                <div className="whitespace-pre-wrap rounded-xl border border-hairline bg-obsidian p-4 text-sm leading-relaxed text-ink">
+                  {readerAnswer}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {activeTool === "plan" ? (
+            <div className="space-y-4 rounded-[20px] border border-hairline bg-panel p-6">
+              <h2 className="font-display text-lg font-bold text-ink">
+                Assistant Chef de Projet
+              </h2>
+              <p className="text-xs text-ink-muted">
+                Collez l&apos;énoncé d&apos;un projet de groupe : l&apos;IA le
+                découpe en tâches concrètes assignées à l&apos;équipe.
+              </p>
+              <textarea
+                rows={5}
+                value={projectBrief}
+                onChange={(e) => setProjectBrief(e.target.value)}
+                placeholder="Collez ici l'énoncé du projet ou laissez vide pour utiliser le document importé..."
+                className="w-full rounded-xl border border-hairline bg-obsidian px-3.5 py-2.5 text-sm text-ink outline-none focus:border-telemetry"
+              />
+              <button
+                type="button"
+                disabled={planLoading}
+                onClick={handleProjectPlan}
+                className="minuto-btn rounded-full px-5 py-2.5 text-xs font-bold disabled:opacity-50"
+              >
+                {planLoading ? "Découpage..." : "Découper en tâches"}
+              </button>
+              {projectPlan ? (
+                <div className="whitespace-pre-wrap rounded-xl border border-hairline bg-obsidian p-4 text-sm leading-relaxed text-ink">
+                  {projectPlan}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {activeTool === "qcm" && questions.length === 0 && !isGenerating ? (
             <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-hairline bg-panel p-10 text-center">
               <BrainCircuit className="h-8 w-8 text-telemetry" />
               <h2 className="mt-4 font-display text-xl font-bold text-ink">
@@ -385,7 +525,7 @@ export function QcmGenerator() {
             </div>
           ) : null}
 
-          {isGenerating ? (
+          {activeTool === "qcm" && isGenerating ? (
             <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-hairline bg-panel p-10 text-center">
               <RefreshCw className="h-7 w-7 animate-spin text-telemetry" />
               <p className="mt-4 font-mono text-xs text-telemetry">
@@ -394,7 +534,7 @@ export function QcmGenerator() {
             </div>
           ) : null}
 
-          {questions.length > 0 && !isGenerating ? (
+          {activeTool === "qcm" && questions.length > 0 && !isGenerating ? (
             <div className="space-y-4">
               {needsApiKey ? (
                 <div className="flex items-start gap-2.5 rounded-xl border border-signal-amber/40 bg-signal-amber/10 px-4 py-3 text-xs text-ink">

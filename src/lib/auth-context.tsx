@@ -142,8 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail.endsWith("@ensae.sn")) {
-      return { error: "Utilisez une adresse institutionnelle @ensae.sn." };
+    if (!cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+      return { error: "Veuillez saisir une adresse email valide (ex: prenom.nom@gmail.com)." };
     }
 
     const supabase = getSupabaseClient();
@@ -187,8 +187,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       promo: UserSession["promo"];
     }) => {
       const cleanEmail = params.email.trim().toLowerCase();
-      if (!cleanEmail.endsWith("@ensae.sn")) {
-        return { error: "L'inscription est réservée aux emails @ensae.sn." };
+      if (!cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+        return { error: "Veuillez saisir une adresse email valide (ex: prenom.nom@gmail.com)." };
       }
 
       const supabase = getSupabaseClient();
@@ -207,7 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!data.session) {
           return {
             notice:
-              "Compte créé ! Vérifiez votre boîte @ensae.sn pour confirmer votre email.",
+              "Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse.",
           };
         }
         return {};

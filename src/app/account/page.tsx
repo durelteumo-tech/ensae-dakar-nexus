@@ -87,8 +87,8 @@ export default function AccountPage() {
           Aucune session active
         </h1>
         <p className="mt-2 text-sm text-ink-muted">
-          Connectez-vous avec votre compte @ensae.sn pour gérer votre profil et
-          apparaître dans le Matchmaking.
+          Connectez-vous avec votre adresse email pour gérer votre profil et
+          apparaître dans le réseau étudiant.
         </p>
         <Link
           href="/login"

@@ -5,8 +5,10 @@ import {
   Download,
   FileCode2,
   FileText,
+  FolderKanban,
   Plus,
   Search,
+  ThumbsUp,
   UploadCloud,
   X,
 } from "lucide-react";
@@ -17,7 +19,9 @@ import type {
 } from "@/types";
 import { useAuth } from "@/lib/auth-context";
 import { ENSAE_SUBJECTS } from "@/lib/constants";
+import { IMG } from "@/lib/images";
 import { NeonBadge } from "@/components/ui/NeonBadge";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const SUBJECTS: ("Toutes" | ResourceCategory)[] = ["Toutes", ...ENSAE_SUBJECTS];
 const FILE_TYPES: ResourceFileType[] = ["PDF", "R", "Python", "Notebook"];
@@ -40,6 +44,8 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
   const [subject, setSubject] = useState<ResourceCategory>("Économétrie");
   const [fileType, setFileType] = useState<ResourceFileType>("PDF");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [votedIds, setVotedIds] = useState<Record<string, boolean>>({});
+  const [voteNotice, setVoteNotice] = useState<string | null>(null);
 
   const filteredResources = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -109,31 +115,23 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col justify-between gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink">
-              Hub de Ressources
-            </h1>
-            <NeonBadge label="100% Validé" />
-          </div>
-          <p className="mt-1.5 text-sm text-ink-muted">
-            Fiches PDF, scripts R et Python vérifiés par le Club Info et les
-            majors de promo.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsUploadOpen((v) => !v)}
-          className="inline-flex min-h-[38px] shrink-0 items-center justify-center gap-2 rounded-lg bg-telemetry px-4 py-2 text-xs font-semibold text-primary-ink transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Uploader un fichier
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Hub de ressources"
+        subtitle="Annales, fiches PDF et scripts R & Python par matière."
+        icon={FolderKanban}
+        image={IMG.resources}
+        action={
+          <button
+            type="button"
+            onClick={() => setIsUploadOpen((v) => !v)}
+            className="minuto-btn inline-flex min-h-[38px] shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2 text-xs font-bold"
+          >
+            <Plus className="h-4 w-4" />
+            Déposer un fichier
+          </button>
+        }
+      />
 
       {/* Upload Sheet */}
       {isUploadOpen ? (
@@ -277,6 +275,12 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
         </div>
       </div>
 
+      {voteNotice ? (
+        <div className="animate-enter rounded-xl border border-volt/40 bg-volt/10 px-4 py-2.5 text-xs font-semibold text-volt">
+          {voteNotice}
+        </div>
+      ) : null}
+
       {/* Grouped List */}
       {filteredResources.length === 0 ? (
         <div className="rounded-xl border border-hairline bg-panel p-8 text-center text-xs text-ink-muted">
@@ -315,14 +319,33 @@ export function ResourcesHub({ initialResources }: ResourcesHubProps) {
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleDownload(item)}
-                  className="inline-flex min-h-[34px] shrink-0 items-center justify-center gap-2 rounded-lg border border-hairline bg-obsidian px-4 py-1.5 text-xs font-semibold text-ink transition hover:bg-panel-raised"
-                >
-                  <Download className="h-3.5 w-3.5 text-telemetry" />
-                  Télécharger
-                </button>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVotedIds((v) => ({ ...v, [item.id]: true }));
+                      setVoteNotice(`Merci — +1 karma attribué à ${item.author}.`);
+                      setTimeout(() => setVoteNotice(null), 2500);
+                    }}
+                    className={`tactile-btn inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
+                      votedIds[item.id]
+                        ? "border-volt bg-volt/12 text-volt"
+                        : "border-hairline bg-obsidian text-ink-muted hover:text-ink"
+                    }`}
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                    <span>{votedIds[item.id] ? "Utile ✓" : "Utile"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(item)}
+                    className="tactile-btn inline-flex min-h-[34px] items-center justify-center gap-2 rounded-lg border border-hairline bg-obsidian px-4 py-1.5 text-xs font-semibold text-ink hover:bg-panel-raised"
+                  >
+                    <Download className="h-3.5 w-3.5 text-telemetry" />
+                    Télécharger
+                  </button>
+                </div>
               </article>
             );
           })}
