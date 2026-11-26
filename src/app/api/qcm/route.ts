@@ -21,6 +21,12 @@ export async function POST(request: Request) {
     const count = Math.min(Math.max(Number(body.count) || 5, 3), 7);
 
     const apiKey = body.apiKey?.trim() || process.env.GEMINI_API_KEY?.trim();
+    if (apiKey && apiKey.length <= 10) {
+      return NextResponse.json(
+        { error: "La clé Gemini fournie semble invalide. Vérifiez-la ou configurez GEMINI_API_KEY côté serveur." },
+        { status: 401 }
+      );
+    }
 
     if (apiKey && apiKey.length > 10) {
       try {
@@ -84,7 +90,11 @@ Chaque question doit comporter exactement 4 options crédibles (sans réponse é
           });
         }
       } catch (aiError) {
-        console.error("Gemini API fallback triggered:", aiError);
+        console.error("Gemini QCM request failed:", aiError);
+        return NextResponse.json(
+          { error: "Gemini n'a pas pu générer le QCM. Vérifiez la clé API, le quota et la connexion du serveur." },
+          { status: 502 }
+        );
       }
     }
 

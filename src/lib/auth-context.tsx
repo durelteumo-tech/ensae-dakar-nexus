@@ -16,6 +16,7 @@ interface AuthContextValue {
   loading: boolean;
   isCloudMode: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  continueAsDemo: () => Promise<void>;
   signUp: (params: {
     email: string;
     password: string;
@@ -252,6 +253,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {};
   }, []);
 
+  const continueAsDemo = useCallback(async () => {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // The local visitor profile remains available if cloud sign-out fails.
+      }
+    }
+
+    const demoUser = { ...DEFAULT_FALLBACK_USER };
+    setUser(demoUser);
+    try {
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(demoUser));
+    } catch {
+      // The visitor can still browse for the current session.
+    }
+  }, []);
+
   const signUp = useCallback(
     async (params: {
       email: string;
@@ -441,6 +461,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         isCloudMode,
         signIn,
+        continueAsDemo,
         signUp,
         signOut,
         updateProfile,

@@ -2,6 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-grotesque-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/bricolage-grotesque-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Golos Text";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/golos-text-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Golos Text";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("/fonts/golos-text-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-600-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Local user-installed fonts */
 @font-face {
   font-family: "Lostya";
@@ -43,25 +125,25 @@
   /* Palette MINUTO (ensae-hub) — Thème clair par défaut */
   :root {
     color-scheme: light;
-    --c-canvas: 246 247 251; /* #f6f7fb */
-    --c-panel: 255 255 255; /* #ffffff */
-    --c-raised: 245 246 250; /* #f5f6fa */
-    --c-hairline: 237 238 243; /* #edeef3 */
-    --c-ink: 32 36 46; /* #20242e */
-    --c-muted: 95 102 117; /* #5f6675 */
-    --c-primary: 255 107 74; /* #ff6b4a */
-    --c-primary-ink: 255 255 255;
-    --c-emerald: 34 192 138; /* #22c08a */
-    --c-amber: 242 162 59; /* #f2a23b */
-    --c-rose: 239 90 90; /* #ef5a5a */
-    --c-violet: 154 106 255; /* #9a6aff */
+    --c-canvas: 251 247 242; /* warm cream */
+    --c-panel: 255 253 250; /* soft ivory */
+    --c-raised: 247 237 228; /* pale peach */
+    --c-hairline: 235 221 209; /* warm beige */
+    --c-ink: 66 50 42; /* warm charcoal */
+    --c-muted: 119 102 92; /* muted cocoa */
+    --c-primary: 190 111 77; /* muted terracotta */
+    --c-primary-ink: 66 39 27;
+    --c-emerald: 104 153 129; /* sage */
+    --c-amber: 190 143 87; /* soft amber */
+    --c-rose: 193 112 116; /* muted rose */
+    --c-violet: 145 126 171; /* muted lilac */
 
-    --grad: linear-gradient(135deg, #ff7a5a, #ff9a6a);
-    --hero: linear-gradient(120deg, #ffe9e3 0%, #f3ecff 55%, #e7f0ff 100%);
-    --pastel1: #fff1ec;
-    --pastel2: #eef3ff;
-    --pastel3: #eafaf3;
-    --pastel4: #f6eeff;
+    --grad: linear-gradient(135deg, #cf845f, #e5b298);
+    --hero: linear-gradient(120deg, #f8e4d8 0%, #f2eaf1 55%, #e6eee9 100%);
+    --pastel1: #fff1e8;
+    --pastel2: #f0edf4;
+    --pastel3: #eaf2ec;
+    --pastel4: #f2edf5;
     --shadow: 0 10px 30px rgba(31, 41, 74, 0.06);
     --shadow-sm: 0 4px 14px rgba(31, 41, 74, 0.05);
   }
@@ -74,15 +156,15 @@
     --c-hairline: 42 46 59; /* #2a2e3b */
     --c-ink: 237 240 246; /* #edf0f6 */
     --c-muted: 166 173 189; /* #a6adbd */
-    --c-primary: 255 122 90; /* #ff7a5a */
-    --c-primary-ink: 255 255 255;
-    --c-emerald: 52 211 154; /* #34d39a */
-    --c-amber: 255 193 101; /* #ffc165 */
-    --c-rose: 255 112 112; /* #ff7070 */
-    --c-violet: 167 139 250;
+    --c-primary: 226 158 127; /* soft terracotta */
+    --c-primary-ink: 66 39 27;
+    --c-emerald: 126 177 151; /* soft sage */
+    --c-amber: 217 175 119; /* soft amber */
+    --c-rose: 218 142 145; /* soft rose */
+    --c-violet: 177 157 204;
 
-    --grad: linear-gradient(135deg, #ff7a5a, #ff9a6a);
-    --hero: linear-gradient(120deg, #2a2230 0%, #232536 55%, #1e2740 100%);
+    --grad: linear-gradient(135deg, #cf845f, #e5b298);
+    --hero: linear-gradient(120deg, #342c30 0%, #302d36 55%, #293431 100%);
     --pastel1: #2a2230;
     --pastel2: #1f2435;
     --pastel3: #1d2b2a;
@@ -141,8 +223,8 @@
 
 .minuto-btn {
   background: var(--grad);
-  color: #fff;
-  box-shadow: 0 8px 20px rgba(255, 107, 74, 0.25);
+  color: #42271b;
+  box-shadow: 0 8px 20px rgba(190, 111, 77, 0.18);
   transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease;
 }
 

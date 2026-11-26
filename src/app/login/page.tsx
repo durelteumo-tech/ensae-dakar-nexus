@@ -16,7 +16,7 @@ import type { EnsaePromo } from "@/types";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signUp, isCloudMode } = useAuth();
+  const { signIn, signUp, continueAsDemo, isCloudMode } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [name, setName] = useState("");
@@ -62,13 +62,14 @@ export default function LoginPage() {
   async function handleQuickDemo() {
     setError(null);
     setIsLoading(true);
-    const res = await signIn("moussa.diop@gmail.com", "ensae2026");
-    setIsLoading(false);
-    if (res.error) {
-      setError(res.error);
-      return;
+    try {
+      await continueAsDemo();
+      router.push("/");
+    } catch {
+      setError("Impossible d'ouvrir la visite de démonstration. Réessayez.");
+    } finally {
+      setIsLoading(false);
     }
-    router.push("/");
   }
 
   return (
@@ -94,6 +95,15 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-pastel1 px-3.5 py-3">
+          <span className="shrink-0 rounded-md bg-panel px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-telemetry">
+            Démo
+          </span>
+          <p className="text-xs leading-relaxed text-ink-muted">
+            Phase de démonstration : explorez la plateforme sans créer de compte.
+          </p>
         </div>
 
         {/* Segmented Control */}
@@ -241,27 +251,24 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
-          {!isCloudMode ? (
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={handleQuickDemo}
-              className="rounded-xl border border-hairline bg-obsidian px-3 py-1.5 text-xs font-semibold text-telemetry transition hover:bg-panel-raised"
-            >
-              Accès démo rapide
-            </button>
-          ) : (
-            <span className="text-xs font-medium text-volt">
-              Supabase Auth actif
-            </span>
-          )}
-
+        <div className="mt-5 border-t border-hairline pt-4">
+          <button
+            type="button"
+            disabled={isLoading}
+            onClick={handleQuickDemo}
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-hairline bg-obsidian px-4 py-2 text-sm font-semibold text-ink transition hover:border-telemetry hover:bg-pastel1 disabled:opacity-50"
+          >
+            <span>{isLoading ? "Ouverture de la démo…" : "Explorer comme visiteur"}</span>
+            {!isLoading ? <ArrowRight className="h-4 w-4 text-telemetry" /> : null}
+          </button>
+          <p className="mt-2 text-center text-xs text-ink-muted">
+            Profil de visite : Moussa Diop · ISE2. Aucune inscription nécessaire.
+          </p>
           <Link
             href="/"
-            className="text-xs font-semibold text-ink-muted hover:text-ink"
+            className="mt-3 block text-center text-xs font-semibold text-ink-muted hover:text-ink"
           >
-            Retour
+            Retour à l’accueil
           </Link>
         </div>
       </div>
