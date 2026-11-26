@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Local user-installed fonts */
+@font-face {
+  font-family: "Lostya";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Lostya"), local("Lostya Regular"), url("/fonts/lostya.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Lovabella";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Lovabella"), local("Lovabella Regular"), url("/fonts/lovabella.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Riffic Free Bold";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Riffic Free Bold"), url("/fonts/riffic-free-bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Luckyfield";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Luckyfield"), url("/fonts/luckyfield.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Luckymoon";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Luckymoon"), url("/fonts/luckymoon.ttf") format("truetype");
+}
+
+@layer base {
+  /* Apple HIG Semantic Color System — Light Appearance */
+  :root {
+    color-scheme: light;
+    --c-canvas: 242 242 247; /* systemGroupedBackground #F2F2F7 */
+    --c-panel: 255 255 255; /* secondarySystemGroupedBackground #FFFFFF */
+    --c-raised: 229 229 234; /* systemGray5 #E5E5EA */
+    --c-hairline: 209 209 214; /* separator #D1D1D6 */
+    --c-ink: 0 0 0; /* label #000000 */
+    --c-muted: 84 84 88; /* secondaryLabel accessible >7:1 #545458 */
+    --c-primary: 0 102 204; /* accessible systemBlue #0066CC */
+    --c-primary-ink: 255 255 255;
+    --c-emerald: 36 138 61; /* accessible systemGreen #248A3D */
+    --c-amber: 185 80 0; /* accessible systemOrange #B95000 */
+    --c-rose: 215 0 21; /* accessible systemRed/Pink #D70015 */
+    --c-violet: 137 68 171; /* accessible systemPurple #8944AB */
+  }
+
+  /* Apple HIG Semantic Color System — Dark Appearance */
+  .dark {
+    color-scheme: dark;
+    --c-canvas: 0 0 0; /* systemBackground #000000 */
+    --c-panel: 28 28 30; /* secondarySystemBackground #1C1C1E */
+    --c-raised: 44 44 46; /* tertiarySystemBackground #2C2C2E */
+    --c-hairline: 56 56 58; /* separator #38383A */
+    --c-ink: 255 255 255; /* label #FFFFFF */
+    --c-muted: 174 174 178; /* secondaryLabel #AEAEB2 */
+    --c-primary: 10 132 255; /* systemBlue dark #0A84FF */
+    --c-primary-ink: 255 255 255;
+    --c-emerald: 48 209 88; /* systemGreen dark #30D158 */
+    --c-amber: 255 159 10; /* systemOrange dark #FF9F0A */
+    --c-rose: 255 55 95; /* systemPink dark #FF375F */
+    --c-violet: 191 90 242; /* systemPurple dark #BF5AF2 */
+  }
+
+  html {
+    font-size: 18px;
+  }
+
+  body {
+    @apply bg-obsidian text-ink text-[16px] leading-relaxed antialiased selection:bg-telemetry selection:text-primary-ink;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  *:focus-visible {
+    outline: 2px solid rgb(var(--c-primary));
+    outline-offset: 2px;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .animate-enter {
+    animation: enter-up 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .animate-enter-left {
+    animation: enter-left 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .tactile-card {
+    transition:
+      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s ease,
+      box-shadow 0.22s ease,
+      background-color 0.2s ease;
+  }
+
+  .tactile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .tactile-btn {
+    transition:
+      transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .tactile-btn:active {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--c-hairline));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--c-muted));
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "stu-1795682034842",
+    "email": "m.diop@ensae.sn",
+    "name": "m.diop",
+    "promo": "ISE2",
+    "specialty": "Statistique & Data Science",
+    "skills": [
+      "Python",
+      "R"
+    ],
+    "lookingFor": [
+      "Économétrie"
+    ],
+    "matchScore": 88,
+    "projectIdea": "Recherche de binôme pour projet académique ENSAE.",
+    "whatsappHandle": "221770000000",
+    "discordHandle": "m.diop#0001",
+    "availability": "Disponible"
+  },
+  {
+    "id": "stu-01",
+    "email": "a.ndiaye@ensae.sn",
+    "name": "Awa Ndiaye",
+    "promo": "ISE3",
+    "specialty": "Économétrie Spatiale & SIG",
+    "skills": [
+      "R",
+      "QGIS",
+      "Économétrie",
+      "LaTeX"
+    ],
+    "lookingFor": [
+      "Python",
+      "Deep Learning",
+      "Frontend"
+    ],
+    "matchScore": 94,
+    "projectIdea": "Cartographie prédictive de l'accès agricole au Sénégal via imagerie satellite.",
+    "whatsappHandle": "221770001122",
+    "discordHandle": "awa.ndiaye#4021",
+    "availability": "Disponible"
+  },
+  {
+    "id": "stu-02",
+    "email": "o.sarr@ensae.sn",
+    "name": "Ousmane Sarr",
+    "promo": "ISE2",
+    "specialty": "Machine Learning & MLOps",
+    "skills": [
+      "Python",
+      "PyTorch",
+      "FastAPI",
+      "Docker"
+    ],
+    "lookingFor": [
+      "Statistiques Bayesiennes",
+      "R",
+      "Data Viz"
+    ],
+    "matchScore": 89,
+    "projectIdea": "API d'analyse de sentiment en Wolof/Français pour enquêtes socio-économiques.",
+    "whatsappHandle": "221780003344",
+    "discordHandle": "ousmane.ml#8810",
+    "availability": "Disponible"
+  },
+  {
+    "id": "stu-03",
+    "email": "k.gueye@ensae.sn",
+    "name": "Khadija Gueye",
+    "promo": "AS3",
+    "specialty": "Statistique Publique & Sondages",
+    "skills": [
+      "SPSS",
+      "Stata",
+      "R",
+      "Plan de sondage"
+    ],
+    "lookingFor": [
+      "Python",
+      "Automatisation",
+      "Anglais"
+    ],
+    "matchScore": 86,
+    "projectIdea": "Automatisation du redressement d'enquêtes ménages avec dashboard interactif.",
+    "whatsappHandle": "221760005566",
+    "discordHandle": "khadija.stat#1902",
+    "availability": "En projet"
+  }
+]

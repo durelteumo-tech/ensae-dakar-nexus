@@ -1,0 +1,20 @@
+[
+  {
+    "id": "grp-1",
+    "name": "Atelier Panel Dynamique ISE2",
+    "subject": "Économétrie",
+    "promo": "ISE2",
+    "code": "ENSAE-PNL2",
+    "members": ["Moussa Diop", "Aminata Ndiaye", "Ibrahima Sow"],
+    "createdBy": "Moussa Diop"
+  },
+  {
+    "id": "grp-2",
+    "name": "Club Info — Data Science & R",
+    "subject": "Python / R",
+    "promo": "AS2 / ISE1 Math",
+    "code": "CLUB-DATA1",
+    "members": ["Moussa Diop", "Cheikh Fall"],
+    "createdBy": "Cheikh Fall"
+  }
+]

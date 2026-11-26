@@ -1,0 +1,33 @@
+[
+  {
+    "id": "act-1",
+    "type": "upload",
+    "title": "Séries Temporelles — Modèles ARIMA & SARIMA (Script R)",
+    "detail": "Partagé dans le Hub • Économétrie",
+    "timestamp": "Il y a 25 min",
+    "badge": "100% Validé"
+  },
+  {
+    "id": "act-2",
+    "type": "qcm",
+    "title": "QCM Inférence Bayésienne — Score 9/10",
+    "detail": "Généré depuis Cours_Bayesien_ISE2.pdf",
+    "timestamp": "Hier, 19:40",
+    "badge": "Vérifié Club Info"
+  },
+  {
+    "id": "act-3",
+    "type": "match",
+    "title": "Match Projet : Awa Ndiaye (ISE 3)",
+    "detail": "Complémentarité Python / Économétrie Spatiale (94%)",
+    "timestamp": "Il y a 2 jours"
+  },
+  {
+    "id": "act-4",
+    "type": "download",
+    "title": "Pipeline XGBoost & SHAP — Risque Crédit BCEAO",
+    "detail": "Téléchargé depuis Data Science",
+    "timestamp": "Il y a 3 jours",
+    "badge": "Vérifié Club Info"
+  }
+]

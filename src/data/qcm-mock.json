@@ -1,0 +1,62 @@
+[
+  {
+    "id": "qcm-1",
+    "question": "Dans un modèle de données de panel dynamique (Arellano-Bond), pourquoi l'estimateur OLS classique en présence d'effet fixe individuel est-il biaisé ?",
+    "options": [
+      "Parce que la variable retardée y_{i,t-1} est corrélée avec le terme d'erreur transformé (biais de Nickell)",
+      "Parce que les erreurs sont toujours homoscédastiques en panel",
+      "Parce que la matrice X'X n'est jamais inversible lorsque N > T",
+      "Parce que la transformation Within supprime uniquement la constante"
+    ],
+    "correctIndex": 0,
+    "explanation": "Après transformation Within (ou en différences premières), la variable dépendante retardée reste corrélée avec la moyenne (ou le retard) du terme d'erreur, générant un biais d'endogénéité dit biais de Nickell."
+  },
+  {
+    "id": "qcm-2",
+    "question": "En langage R, quelle fonction du package `forecast` permet de sélectionner automatiquement les ordres (p,d,q)(P,D,Q)[s] d'un modèle SARIMA selon le critère AICc ?",
+    "options": [
+      "sarima.fit()",
+      "auto.arima()",
+      "arima.select()",
+      "ts.decompose()"
+    ],
+    "correctIndex": 1,
+    "explanation": "`forecast::auto.arima()` explore l'espace des modèles ARIMA/SARIMA et retient la spécification minimisant AICc (ou AIC/BIC selon le paramètre `ic`)."
+  },
+  {
+    "id": "qcm-3",
+    "question": "Lors de l'évaluation d'un modèle de credit scoring fortement déséquilibré (ex: 3% de défauts), quelle métrique est la plus pertinente pour mesurer la capacité discriminante globale ?",
+    "options": [
+      "L'Accuracy brute",
+      "Le R² ajusté",
+      "L'aire sous la courbe Precision-Recall (PR-AUC) et le KS / ROC-AUC",
+      "La variance expliquée (MSE)"
+    ],
+    "correctIndex": 2,
+    "explanation": "L'accuracy est trompeuse sur classes déséquilibrées (un modèle naïf atteint 97%). La PR-AUC et la statistique de Kolmogorov-Smirnov (KS) / ROC-AUC évaluent efficacement la séparation des classes."
+  },
+  {
+    "id": "qcm-4",
+    "question": "En statistique bayésienne, si la loi a priori d'un paramètre p est Beta(α, β) et que les données suivent une loi Binomiale(n, p) avec k succès, quelle est la loi a posteriori ?",
+    "options": [
+      "Normale(α + k, β + n)",
+      "Beta(α + k, β + n - k)",
+      "Gamma(α + k, β + n - k)",
+      "Binomiale(n, α / (α + β))"
+    ],
+    "correctIndex": 1,
+    "explanation": "La famille Beta est conjuguée à la vraisemblance Binomiale : les paramètres se mettent à jour additivement en Beta(α + k, β + n - k)."
+  },
+  {
+    "id": "qcm-5",
+    "question": "En Python avec `scikit-learn`, quel est le risque principal si l'on applique `StandardScaler().fit_transform(X)` avant `train_test_split` ?",
+    "options": [
+      "Une erreur de dimensionnement des tenseurs",
+      "Une fuite de données (Data Leakage) du jeu de test vers l'entraînement",
+      "Une perte de précision en virgule flottante",
+      "Une augmentation exponentielle du temps d'entraînement"
+    ],
+    "correctIndex": 1,
+    "explanation": "Le scaler calculerait la moyenne et l'écart-type en incluant les observations de test. Il faut toujours `fit` uniquement sur `X_train` puis `transform` sur `X_test`."
+  }
+]

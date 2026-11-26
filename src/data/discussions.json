@@ -1,0 +1,50 @@
+[
+  {
+    "id": "disc-1795707495064",
+    "author": "m.diop",
+    "promo": "ISE2",
+    "channel": "Général",
+    "title": "wxcvbn,;",
+    "content": "xcvbn,;",
+    "createdAt": "À l'instant",
+    "replies": []
+  },
+  {
+    "id": "disc-1",
+    "author": "Moussa Diop",
+    "promo": "ISE2",
+    "channel": "Économétrie",
+    "title": "Astuce pour le test d'Hausman sous R (package plm)",
+    "content": "Pour ceux qui bloquent sur le TP d'économétrie de panel : pensez à vérifier que vos deux modèles (within et random) utilisent exactement le même sous-échantillon avant d'appeler phtest().",
+    "createdAt": "Aujourd'hui • 14:20",
+    "replies": [
+      {
+        "id": "rep-1",
+        "author": "Aminata Ndiaye",
+        "promo": "ISE3",
+        "content": "Merci ! Et si la p-value est < 0.05, on rejette H0 et on retient le modèle à effets fixes (Within).",
+        "createdAt": "Aujourd'hui • 14:35"
+      }
+    ]
+  },
+  {
+    "id": "disc-2",
+    "author": "Cheikh Fall",
+    "promo": "AS2",
+    "channel": "Python / R",
+    "title": "Groupe de révision Python & pandas ce samedi",
+    "content": "Le Club Info organise une séance pratique sur le nettoyage de données d'enquêtes (ANSD) avec pandas et polars en salle Info 2 à 10h. Qui participe ?",
+    "createdAt": "Hier • 18:10",
+    "replies": []
+  },
+  {
+    "id": "disc-3",
+    "author": "Fatou Sarr",
+    "promo": "ISEP1",
+    "channel": "Anglais",
+    "title": "Vocabulaire pour commenter un graphique statistique en anglais",
+    "content": "J'ai déposé une fiche dans le Hub Ressources avec les expressions clés (plummet, plateau, sharp surge, steady decline). N'hésitez pas à l'enrichir !",
+    "createdAt": "Hier • 11:05",
+    "replies": []
+  }
+]

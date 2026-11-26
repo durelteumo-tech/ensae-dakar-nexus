@@ -1,0 +1,80 @@
+[
+  {
+    "id": "res-01",
+    "title": "Estimation GMM & Données de Panel Dynamiques",
+    "subject": "Économétrie",
+    "fileType": "PDF",
+    "fileSize": "2.4 MB",
+    "author": "Moussa Diop",
+    "promo": "ISE3",
+    "badge": "100% Validé",
+    "downloads": 148,
+    "uploadedAt": "2026-11-20",
+    "downloadUrl": "#"
+  },
+  {
+    "id": "res-02",
+    "title": "Série_Chronologique_SARIMA_Sénégal.R",
+    "subject": "Python / R",
+    "fileType": "R",
+    "fileSize": "84 KB",
+    "author": "Fatou Sall",
+    "promo": "ISE2",
+    "badge": "Vérifié Club Info",
+    "downloads": 96,
+    "uploadedAt": "2026-11-22",
+    "downloadUrl": "#"
+  },
+  {
+    "id": "res-03",
+    "title": "credit_scoring_uemoa_pipeline.py",
+    "subject": "Data Science",
+    "fileType": "Python",
+    "fileSize": "142 KB",
+    "author": "Cheikh Fall",
+    "promo": "ISE1 Eco",
+    "badge": "Vérifié Club Info",
+    "downloads": 215,
+    "uploadedAt": "2026-11-24",
+    "downloadUrl": "#"
+  },
+  {
+    "id": "res-04",
+    "title": "Méthodologie Note de Synthèse & Dissertation ENSAE",
+    "subject": "Français",
+    "fileType": "PDF",
+    "fileSize": "1.6 MB",
+    "author": "Mariama Kane",
+    "promo": "ISEP2",
+    "badge": "100% Validé",
+    "downloads": 134,
+    "uploadedAt": "2026-11-21",
+    "downloadUrl": "#"
+  },
+  {
+    "id": "res-05",
+    "title": "Academic & Economic English — Statistical Reporting",
+    "subject": "Anglais",
+    "fileType": "PDF",
+    "fileSize": "1.2 MB",
+    "author": "Ibrahima Sow",
+    "promo": "ISE1 Math",
+    "badge": "Vérifié Club Info",
+    "downloads": 119,
+    "uploadedAt": "2026-11-23",
+    "downloadUrl": "#"
+  },
+  {
+    "id": "res-06",
+    "title": "Calcul Stochastique & Processus de Poisson",
+    "subject": "Probabilités",
+    "fileType": "PDF",
+    "fileSize": "3.1 MB",
+    "author": "Aminata Ba",
+    "promo": "ISE1 CL",
+    "badge": "100% Validé",
+    "downloads": 182,
+    "uploadedAt": "2026-11-18",
+    "downloadUrl": "#"
+  }
+]

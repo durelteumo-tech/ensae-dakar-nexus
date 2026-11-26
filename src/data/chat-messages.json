@@ -1,0 +1,52 @@
+[
+  {
+    "id": "msg-1",
+    "groupId": "grp-1",
+    "author": "Aminata Ndiaye",
+    "promo": "ISE3",
+    "specialty": "Économétrie",
+    "content": "Bonjour la team ! Quelqu'un a déjà testé phtest() sur les données de panel du TP 3 ?",
+    "createdAt": "14:20",
+    "timestamp": 1795702800000
+  },
+  {
+    "id": "msg-2",
+    "groupId": "grp-1",
+    "author": "Ibrahima Sow",
+    "promo": "ISE2",
+    "specialty": "Statistiques",
+    "content": "Oui, pense bien à utiliser exactement le même sous-échantillon pour within et random.",
+    "createdAt": "14:24",
+    "timestamp": 1795703040000
+  },
+  {
+    "id": "msg-3",
+    "groupId": "grp-1",
+    "author": "Moussa Diop",
+    "promo": "ISE2",
+    "specialty": "Data Science",
+    "content": "Parfait, je partage mon script R corrigé dans le Hub juste après.",
+    "createdAt": "14:30",
+    "timestamp": 1795703400000
+  },
+  {
+    "id": "msg-4",
+    "groupId": "grp-2",
+    "author": "Cheikh Fall",
+    "promo": "AS2",
+    "specialty": "Python / R",
+    "content": "Séance pratique pandas & polars ce samedi à 10h en salle Info 2. Qui vient ?",
+    "createdAt": "15:10",
+    "timestamp": 1795705800000
+  },
+  {
+    "id": "msg-1795715644015-w3h0",
+    "groupId": "grp-1",
+    "author": "m.diop",
+    "promo": "ISE2",
+    "specialty": "Statistique & Data Science",
+    "content": "Bonjour",
+    "createdAt": "18:54",
+    "timestamp": 1795715644015
+  }
+]
