@@ -2,14 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
+  Check,
   CheckCheck,
+  Copy,
   Info,
   ListTodo,
   MessageSquareText,
   Plus,
+  Reply,
   Search,
   Send,
-  Users,
+  Smile,
   X,
 } from "lucide-react";
 import type { ChatMessage, StudentGroup } from "@/types";
@@ -24,6 +27,42 @@ interface GroupTask {
   title: string;
   status: "todo" | "doing" | "done";
   assignee?: string;
+}
+
+const EMOJI_LIST = [
+  "😀", "😂", "🥹", "😍", "🤩", "😎", "🤔", "🫡",
+  "👍", "👏", "🙌", "🔥", "💯", "✨", "🎉", "🚀",
+  "💡", "📚", "💻", "📊", "📈", "✅", "❤️", "🙏",
+];
+
+function encodeReplyContent(
+  reply: { author: string; content: string } | null,
+  text: string
+): string {
+  if (!reply) return text;
+  const safeAuthor = reply.author.replace(/[\|\[\]\n]/g, " ").trim();
+  const safeSnippet = reply.content
+    .replace(/[\|\[\]\n]/g, " ")
+    .trim()
+    .slice(0, 90);
+  return `[[reply:${safeAuthor}|${safeSnippet}]]\n${text}`;
+}
+
+function parseMessageContent(raw: string): {
+  replyTo: { author: string; content: string } | null;
+  body: string;
+} {
+  const match = raw.match(/^\[\[reply:([^|\]]+)\|([^\]]*)\]\]\n?([\s\S]*)$/);
+  if (!match) {
+    return { replyTo: null, body: raw };
+  }
+  return {
+    replyTo: {
+      author: match[1].trim(),
+      content: match[2].trim(),
+    },
+    body: match[3],
+  };
 }
 
 const KANBAN_COLS: Array<{
@@ -73,6 +112,15 @@ export function DiscussionBoard({
   const [draft, setDraft] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [showEmojis, setShowEmojis] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<{
+    id: string;
+    author: string;
+    content: string;
+  } | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const dragStartXRef = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -180,11 +228,25 @@ export function DiscussionBoard({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [roomMessages.length, activeGroup?.id]);
 
+  async function handleCopyCode(code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 1800);
+    } catch {
+      // Clipboard API may be unavailable in non-HTTPS contexts
+    }
+  }
+
   async function handleSendMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!draft.trim() || !activeGroup) return;
     const text = draft.trim();
+    const replySnapshot = replyingTo;
+    const payloadContent = encodeReplyContent(replySnapshot, text);
     setDraft("");
+    setReplyingTo(null);
+    setShowEmojis(false);
     setChatError(null);
     setIsSending(true);
 
@@ -197,7 +259,7 @@ export function DiscussionBoard({
           author: currentUserName,
           promo: currentUserPromo,
           specialty: currentUserSpecialty,
-          content: text,
+          content: payloadContent,
         }),
       });
       const data = await res.json();
@@ -206,6 +268,7 @@ export function DiscussionBoard({
           data.error || "Impossible d'envoyer le message (vérifiez Supabase)."
         );
         setDraft(text);
+        setReplyingTo(replySnapshot);
         return;
       }
       if (data.message) {
@@ -438,13 +501,13 @@ export function DiscussionBoard({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   onClick={() =>
                     setRoomView((v) => (v === "chat" ? "kanban" : "chat"))
                   }
-                  className={`tactile-btn inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                  className={`tactile-btn inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                     roomView === "kanban"
                       ? "border-telemetry bg-telemetry text-primary-ink"
                       : "border-hairline bg-obsidian text-ink hover:bg-panel-raised"
@@ -463,17 +526,19 @@ export function DiscussionBoard({
                   )}
                 </button>
 
-                <span className="hidden items-center gap-1.5 rounded-full border border-hairline bg-obsidian px-3 py-1 text-xs font-medium text-ink-muted sm:inline-flex">
-                  <Users className="h-3.5 w-3.5 text-telemetry" />
-                  Code : <strong className="font-mono text-ink">{activeGroup.code}</strong>
-                </span>
-                <span
-                  title="Synchronisation multi-appareils active"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-volt/12 px-2.5 py-1 text-xs font-semibold text-volt"
+                <button
+                  type="button"
+                  onClick={() => handleCopyCode(activeGroup.code)}
+                  title="Copier le code du groupe"
+                  className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-hairline bg-obsidian px-3 py-1.5 text-xs font-mono font-semibold text-ink transition hover:border-telemetry/40 hover:text-telemetry sm:inline-flex"
                 >
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-volt" />
-                  En ligne
-                </span>
+                  <span>{activeGroup.code}</span>
+                  {copiedCode ? (
+                    <Check className="h-3.5 w-3.5 text-volt" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 text-ink-muted" />
+                  )}
+                </button>
               </div>
             </header>
 
@@ -593,12 +658,49 @@ export function DiscussionBoard({
                 roomMessages.map((msg) => {
                   const isMine =
                     msg.author.toLowerCase() === currentUserName.toLowerCase();
+                  const parsed = parseMessageContent(msg.content);
+                  const replyData = msg.replyTo ?? parsed.replyTo;
+                  const bodyText = parsed.body;
+
+                  const triggerReply = () => {
+                    setReplyingTo({
+                      id: msg.id,
+                      author: msg.author,
+                      content: bodyText,
+                    });
+                    inputRef.current?.focus();
+                  };
 
                   return (
                     <div
                       key={msg.id}
-                      className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                      onPointerDown={(e) => {
+                        dragStartXRef.current = e.clientX;
+                      }}
+                      onPointerUp={(e) => {
+                        if (
+                          dragStartXRef.current !== null &&
+                          e.clientX - dragStartXRef.current > 40
+                        ) {
+                          triggerReply();
+                        }
+                        dragStartXRef.current = null;
+                      }}
+                      className={`group flex touch-pan-y items-end gap-1.5 select-text ${
+                        isMine ? "justify-end" : "justify-start"
+                      }`}
                     >
+                      {isMine ? (
+                        <button
+                          type="button"
+                          onClick={triggerReply}
+                          title="Répondre à ce message"
+                          className="mb-1 rounded-full p-1.5 text-ink-muted opacity-0 transition hover:bg-panel-raised hover:text-telemetry group-hover:opacity-100 focus:opacity-100"
+                        >
+                          <Reply className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
+
                       <div
                         className={`max-w-[78%] rounded-2xl px-4 py-2.5 ${
                           isMine
@@ -618,7 +720,24 @@ export function DiscussionBoard({
                           </div>
                         ) : null}
 
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
+                        {replyData ? (
+                          <div
+                            className={`mb-1.5 rounded-lg border-l-2 px-2.5 py-1 text-xs ${
+                              isMine
+                                ? "border-primary-ink/70 bg-primary-ink/10 text-primary-ink/90"
+                                : "border-telemetry bg-obsidian/70 text-ink-muted"
+                            }`}
+                          >
+                            <p className="font-bold">{replyData.author}</p>
+                            <p className="truncate opacity-85">
+                              {replyData.content}
+                            </p>
+                          </div>
+                        ) : null}
+
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {bodyText}
+                        </p>
 
                         <div
                           className={`mt-1 flex items-center justify-end gap-1 font-mono text-[11px] ${
@@ -629,6 +748,17 @@ export function DiscussionBoard({
                           {isMine ? <CheckCheck className="h-3.5 w-3.5" /> : null}
                         </div>
                       </div>
+
+                      {!isMine ? (
+                        <button
+                          type="button"
+                          onClick={triggerReply}
+                          title="Répondre à ce message"
+                          className="mb-1 rounded-full p-1.5 text-ink-muted opacity-0 transition hover:bg-panel-raised hover:text-telemetry group-hover:opacity-100 focus:opacity-100"
+                        >
+                          <Reply className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })
@@ -643,26 +773,81 @@ export function DiscussionBoard({
             ) : null}
 
             {/* Message Input Bar */}
-            <form
-              onSubmit={handleSendMessage}
-              className="flex items-center gap-3 border-t border-hairline bg-panel px-4 py-3"
-            >
-              <input
-                type="text"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={`Écrire un message dans ${activeGroup.name}...`}
-                className="flex-1 rounded-full border border-hairline bg-obsidian px-4 py-2.5 text-sm text-ink placeholder-ink-muted/70 outline-none focus:border-telemetry"
-              />
-              <button
-                type="submit"
-                disabled={isSending || !draft.trim()}
-                className="tactile-btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-telemetry px-5 py-2 text-sm font-semibold text-primary-ink hover:opacity-90 disabled:opacity-40"
+            <div className="relative border-t border-hairline bg-panel">
+              {showEmojis ? (
+                <div className="absolute bottom-full left-4 z-20 mb-2 grid grid-cols-8 gap-1 rounded-2xl border border-hairline bg-panel p-2.5 shadow-xl">
+                  {EMOJI_LIST.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        setDraft((prev) => prev + emoji);
+                        inputRef.current?.focus();
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-lg transition hover:bg-obsidian"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {replyingTo ? (
+                <div className="flex items-center justify-between gap-3 border-b border-hairline bg-obsidian/60 px-4 py-2">
+                  <div className="min-w-0 flex-1 border-l-2 border-telemetry pl-2.5">
+                    <p className="flex items-center gap-1 text-xs font-bold text-telemetry">
+                      <Reply className="h-3 w-3" />
+                      <span>Réponse à {replyingTo.author}</span>
+                    </p>
+                    <p className="truncate text-xs text-ink-muted">
+                      {replyingTo.content}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setReplyingTo(null)}
+                    title="Annuler la réponse"
+                    className="rounded-full p-1 text-ink-muted transition hover:bg-panel-raised hover:text-ink"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : null}
+
+              <form
+                onSubmit={handleSendMessage}
+                className="flex items-center gap-2.5 px-4 py-3"
               >
-                <Send className="h-4 w-4" />
-                <span className="hidden sm:inline">Envoyer</span>
-              </button>
-            </form>
+                <button
+                  type="button"
+                  onClick={() => setShowEmojis((prev) => !prev)}
+                  title="Ajouter un émoji"
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition ${
+                    showEmojis
+                      ? "border-telemetry bg-telemetry/15 text-telemetry"
+                      : "border-hairline bg-obsidian text-ink-muted hover:text-ink"
+                  }`}
+                >
+                  <Smile className="h-4 w-4" />
+                </button>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={`Écrire un message dans ${activeGroup.name}...`}
+                  className="flex-1 rounded-full border border-hairline bg-obsidian px-4 py-2.5 text-sm text-ink placeholder-ink-muted/70 outline-none focus:border-telemetry"
+                />
+                <button
+                  type="submit"
+                  disabled={isSending || !draft.trim()}
+                  className="tactile-btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-telemetry px-5 py-2 text-sm font-semibold text-primary-ink hover:opacity-90 disabled:opacity-40"
+                >
+                  <Send className="h-4 w-4" />
+                  <span className="hidden sm:inline">Envoyer</span>
+                </button>
+              </form>
+            </div>
               </>
             )}
           </>

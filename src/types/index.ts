@@ -122,4 +122,9 @@ export interface ChatMessage {
   content: string;
   createdAt: string;
   timestamp: number;
+  replyTo?: {
+    id: string;
+    author: string;
+    content: string;
+  };
 }
