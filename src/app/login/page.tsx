@@ -40,7 +40,7 @@ export default function LoginPage() {
         setError(res.error);
         return;
       }
-      router.push("/");
+      window.location.assign("/");
       return;
     }
 
@@ -56,11 +56,7 @@ export default function LoginPage() {
       setError(res.error);
       return;
     }
-    if (res.notice) {
-      setNotice(res.notice);
-      return;
-    }
-    router.push("/account");
+    window.location.assign("/");
   }
 
   async function handleQuickDemo() {

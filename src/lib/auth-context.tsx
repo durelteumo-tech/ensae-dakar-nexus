@@ -52,36 +52,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const isCloudMode = isSupabaseConfigured();
 
-  const loadSupabaseProfile = useCallback(async (userId: string, email: string) => {
-    const supabase = getSupabaseClient();
-    if (!supabase) return;
+  const loadSupabaseProfile = useCallback(
+    async (
+      userId: string,
+      email: string,
+      meta?: { full_name?: string; promo?: string }
+    ) => {
+      const fallbackName =
+        meta?.full_name?.trim() || email.split("@")[0] || "Étudiant";
+      const fallbackPromo =
+        (meta?.promo as UserSession["promo"]) || "ISE2";
 
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
 
-    if (data) {
-      setUser({
-        id: userId,
-        email: String(data.email ?? email),
-        name: String(data.full_name ?? email.split("@")[0]),
-        promo: (data.promo as UserSession["promo"]) ?? "ISE 2",
-        specialty: String(data.specialty ?? "Statistique & Data Science"),
-        skills: Array.isArray(data.skills) ? data.skills : ["Python", "R"],
-        lookingFor: Array.isArray(data.looking_for)
-          ? data.looking_for
-          : ["Économétrie"],
-        projectIdea: String(data.project_idea ?? ""),
-        whatsappHandle: String(data.whatsapp_handle ?? ""),
-        discordHandle: String(data.discord_handle ?? ""),
-        availability:
-          (data.availability as UserSession["availability"]) ?? "Disponible",
-        provider: "supabase",
-      });
-    }
-  }, []);
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      const nextUser: UserSession = data
+        ? {
+            id: userId,
+            email: String(data.email ?? email),
+            name: String(data.full_name || fallbackName),
+            promo: (data.promo as UserSession["promo"]) || fallbackPromo,
+            specialty: String(data.specialty ?? "Statistique & Data Science"),
+            skills: Array.isArray(data.skills) ? data.skills : ["Python", "R"],
+            lookingFor: Array.isArray(data.looking_for)
+              ? data.looking_for
+              : ["Économétrie"],
+            projectIdea: String(data.project_idea ?? ""),
+            whatsappHandle: String(data.whatsapp_handle ?? ""),
+            discordHandle: String(data.discord_handle ?? ""),
+            availability:
+              (data.availability as UserSession["availability"]) ??
+              "Disponible",
+            provider: "supabase",
+          }
+        : {
+            id: userId,
+            email,
+            name: fallbackName,
+            promo: fallbackPromo,
+            specialty: "Statistique & Data Science",
+            skills: ["Python", "R"],
+            lookingFor: ["Économétrie"],
+            projectIdea: "",
+            whatsappHandle: "",
+            discordHandle: "",
+            availability: "Disponible",
+            provider: "supabase",
+          };
+
+      if (!data) {
+        try {
+          await supabase.from("profiles").upsert(
+            {
+              id: userId,
+              email,
+              full_name: fallbackName,
+              promo: fallbackPromo,
+            },
+            { onConflict: "id" }
+          );
+        } catch {
+          // Ignore RLS/table errors so login never blocks
+        }
+      }
+
+      setUser(nextUser);
+      try {
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(nextUser));
+      } catch {
+        // ignore
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     let active = true;
@@ -96,20 +145,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user && active) {
           await loadSupabaseProfile(
             session.user.id,
-            session.user.email ?? "etudiant@ensae.sn"
+            session.user.email ?? "etudiant@gmail.com",
+            session.user.user_metadata as { full_name?: string; promo?: string }
           );
+        } else if (active) {
+          try {
+            const saved = localStorage.getItem(SESSION_STORAGE_KEY);
+            if (saved) setUser(JSON.parse(saved) as UserSession);
+          } catch {
+            // ignore
+          }
         }
 
         const {
           data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+        } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           if (newSession?.user) {
             await loadSupabaseProfile(
               newSession.user.id,
-              newSession.user.email ?? "etudiant@ensae.sn"
+              newSession.user.email ?? "etudiant@gmail.com",
+              newSession.user.user_metadata as {
+                full_name?: string;
+                promo?: string;
+              }
             );
-          } else {
+          } else if (event === "SIGNED_OUT") {
             setUser(null);
+            try {
+              localStorage.removeItem(SESSION_STORAGE_KEY);
+            } catch {
+              // ignore
+            }
           }
         });
 
@@ -148,11 +214,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const supabase = getSupabaseClient();
     if (supabase) {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
         password,
       });
       if (error) return { error: error.message };
+      if (data?.user) {
+        await loadSupabaseProfile(
+          data.user.id,
+          cleanEmail,
+          data.user.user_metadata as { full_name?: string; promo?: string }
+        );
+      }
       return {};
     }
 
@@ -203,12 +276,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             },
           },
         });
-        if (error) return { error: error.message };
+        if (error) {
+          if (error.message.toLowerCase().includes("rate limit")) {
+            return {
+              error:
+                "Limite d'envoi d'emails Supabase atteinte (2/heure sur le plan gratuit). Désactivez « Confirm email » dans Supabase → Authentication → Providers → Email pour activer l'inscription instantanée.",
+            };
+          }
+          return { error: error.message };
+        }
         if (!data.session) {
-          return {
-            notice:
-              "Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse.",
+          // Tenter une connexion directe si la confirmation email est désactivée
+          const { data: signInData } = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: params.password,
+          });
+          if (signInData?.user) {
+            await loadSupabaseProfile(signInData.user.id, cleanEmail, {
+              full_name: params.name.trim(),
+              promo: params.promo,
+            });
+            return {};
+          }
+          // Même si Confirm email est encore actif dans Supabase, on ouvre la session locale immédiatement
+          // pour ne jamais bloquer l'étudiant sur la page de création de compte.
+          const immediateUser: UserSession = {
+            id: data.user?.id || `stu-${Date.now()}`,
+            email: cleanEmail,
+            name: params.name.trim(),
+            promo: params.promo,
+            specialty: "Statistique & Data Science",
+            skills: ["Python", "R"],
+            lookingFor: ["Économétrie"],
+            projectIdea: "",
+            whatsappHandle: "",
+            discordHandle: "",
+            availability: "Disponible",
+            provider: "supabase",
           };
+          setUser(immediateUser);
+          try {
+            localStorage.setItem(
+              SESSION_STORAGE_KEY,
+              JSON.stringify(immediateUser)
+            );
+          } catch {
+            // ignore
+          }
+          return {};
+        }
+
+        if (data.user) {
+          await loadSupabaseProfile(data.user.id, cleanEmail, {
+            full_name: params.name.trim(),
+            promo: params.promo,
+          });
         }
         return {};
       }
@@ -280,7 +402,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           })
           .eq("id", user.id);
 
-        if (error) return { error: error.message };
+        if (error) {
+          if (error.message.toLowerCase().includes("rate limit")) {
+            return {
+              error:
+                "Limite d'envoi d'emails Supabase atteinte (2/heure sur le plan gratuit). Désactivez « Confirm email » dans Supabase → Authentication → Providers → Email pour activer l'inscription instantanée.",
+            };
+          }
+          return { error: error.message };
+        }
         setUser(merged);
         return {};
       }
