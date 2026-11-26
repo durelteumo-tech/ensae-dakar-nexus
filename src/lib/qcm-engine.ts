@@ -476,7 +476,7 @@ function buildTextDerivedQuestions(
     results.push(
       shuffleQuestionOptions({
         id: `doc-code-${Date.now()}-0`,
-        question: `Dans votre script "${docName}", quel est le rôle principal de l'instruction suivante : \`${line}\` ?`,
+        question: `Dans votre script, quel est le rôle principal de l'instruction suivante : \`${line}\` ?`,
         options: isImport
           ? [
               "Charger un module ou package externe requis pour l'analyse",
@@ -498,7 +498,7 @@ function buildTextDerivedQuestions(
                 "Désactiver la graine aléatoire du générateur",
               ],
         correctIndex: 0,
-        explanation: `Instruction extraite directement de "${docName}" : \`${line}\`.`,
+        explanation: `Instruction extraite du document : \`${line}\`.`,
       })
     );
   }
@@ -563,10 +563,10 @@ function buildTextDerivedQuestions(
     results.push(
       shuffleQuestionOptions({
         id: `doc-cloze-${Date.now()}-${results.length}`,
-        question: `D'après votre document "${docName}", quel terme complète exactement l'énoncé suivant ? « ${masked} »`,
+        question: `D'après votre document, quel terme complète exactement l'énoncé suivant ? « ${masked} »`,
         options: [targetTerm, ...distractors],
         correctIndex: 0,
-        explanation: `Extrait exact du document "${docName}" : « ${sentence} »`,
+        explanation: `Extrait du document : « ${sentence} »`,
       })
     );
   }
@@ -588,12 +588,9 @@ export function generateDynamicFallbackQcm(params: {
       : inferSubjectFromText(params.documentName, params.documentText);
 
   const hasRichDocumentText = params.documentText.trim().length >= 120;
-  // If the uploaded document doesn't match any ENSAE bank subject (e.g. HTML5/CSS3),
-  // derive all questions strictly from the document text instead of injecting unrelated R/Econometrics questions.
-  const maxTextDerived =
-    hasRichDocumentText && detectedTopic === "Tous"
-      ? targetCount
-      : Math.min(targetCount, 4);
+  // When a real document is provided, derive all requested questions from the document text first
+  // instead of injecting unrelated bank questions.
+  const maxTextDerived = hasRichDocumentText ? targetCount : Math.min(targetCount, 4);
 
   const textQuestions = buildTextDerivedQuestions(
     params.documentName,
