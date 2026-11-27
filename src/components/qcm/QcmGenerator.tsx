@@ -175,6 +175,8 @@ export function QcmGenerator() {
       });
       const data = await res.json();
       setReaderAnswer(data.text || data.error || "Aucune réponse.");
+    } catch {
+      setReaderAnswer("Impossible de joindre le serveur IA. Vérifiez votre connexion et la configuration Gemini.");
     } finally {
       setReaderLoading(false);
     }
@@ -196,6 +198,8 @@ export function QcmGenerator() {
       });
       const data = await res.json();
       setProjectPlan(data.text || data.error || "Aucun plan généré.");
+    } catch {
+      setProjectPlan("Impossible de joindre le serveur IA. Vérifiez votre connexion et la configuration Gemini.");
     } finally {
       setPlanLoading(false);
     }

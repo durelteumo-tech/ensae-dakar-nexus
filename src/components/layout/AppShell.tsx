@@ -368,6 +368,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         key={pathname}
         className="animate-enter mx-auto w-full max-w-6xl flex-1 px-5 py-7 sm:px-9 sm:py-8"
       >
+        <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-hairline bg-pastel1 px-3.5 py-2.5 text-xs text-ink-muted">
+          <span className="rounded-md bg-panel px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-telemetry">
+            Démo
+          </span>
+          <p>Phase de démonstration · les profils et contenus affichés sont des exemples.</p>
+        </div>
         {children}
       </main>
     </div>

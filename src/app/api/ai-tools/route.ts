@@ -14,6 +14,12 @@ export async function POST(request: Request) {
 
     const apiKey = body.apiKey?.trim() || process.env.GEMINI_API_KEY?.trim();
     const mode = body.mode ?? "reader";
+    if (!apiKey || apiKey.length <= 10) {
+      return NextResponse.json(
+        { error: "Clé Gemini manquante. Configurez GEMINI_API_KEY côté serveur ou saisissez une clé dans le Studio IA." },
+        { status: 503 }
+      );
+    }
 
     if (apiKey && apiKey.length > 10) {
       try {
@@ -100,10 +106,11 @@ export async function POST(request: Request) {
     ].join("\n");
 
     return NextResponse.json({ source: "local", text: planText });
-  } catch {
+  } catch (error) {
+    console.error("Gemini assistant request failed:", error);
     return NextResponse.json(
-      { error: "Erreur lors du traitement par l'assistant IA." },
-      { status: 500 }
+      { error: "Gemini n'a pas pu répondre. Vérifiez la clé API, le quota et la connexion du serveur." },
+      { status: 502 }
     );
   }
 }
